@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Properties & Plots| Yelagiri Properties</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <style>
+        /* ==================================================
+            ROOT VARIABLES & RESET
+        ================================================== */
+        :root {
+            --primary: #2e7d32;
+            --primary-dark: #1b3e5e;
+            --accent: #ffa000;
+            --text-dark: #222;
+            --text-muted: #666;
+            --white: #ffffff;
+            --bg-light: #f7f7f7;
+            --border-light: #eeeeee;
+
+            --radius-sm: 8px;
+            --radius-lg: 20px;
+
+            --shadow-sm: 0 4px 10px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.15);
+
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --max-width: 1200px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text-dark);
+            background: var(--bg-light);
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* ==================================================
+            LAYOUT COMPONENTS
+        ================================================== */
+        .container {
+            width: 100%;
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .back-btn {
+            background: var(--bg-light);
+            border: 1px solid var(--border-light);
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            padding: 8px 16px;
+            border-radius: 100px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .back-btn:hover {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        /* ==================================================
+            FILTER SECTION
+        ================================================== */
+        .filter-bar {
+            background: var(--white);
+            padding: 24px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-sm);
+            margin: 30px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 14px;
+            background: var(--bg-light);
+            border: 1px solid #e0e0e0;
+            border-radius: var(--radius-sm);
+            outline: none;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 16px;
+            /* Prevents zoom on mobile */
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+        }
+
+        .filter-select:focus {
+            border-color: var(--primary);
+            background-color: var(--white);
+        }
+
+        /* ==================================================
+            PROPERTY GRID & CARDS
+        ================================================== */
+        .property-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+
+        .property-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .property-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-8px);
+        }
+
+        .card-image-wrapper {
+            aspect-ratio: 16 / 10;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card-image-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .property-card:hover .card-image-wrapper img {
+            transform: scale(1.1);
+        }
+
+        .type-tag {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: var(--accent);
+            color: var(--white);
+            padding: 5px 14px;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 100px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 2;
+        }
+
+        .price-tag {
+            position: absolute;
+            bottom: 15px;
+            left: 15px;
+            background: var(--primary);
+            color: var(--white);
+            padding: 6px 14px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: var(--radius-sm);
+            z-index: 2;
+        }
+
+        .card-body {
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+        }
+
+        .card-location {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .card-desc {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 15px;
+            display: -webkit-box;
+
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.6;
+        }
+
+        .card-footer {
+            border-top: 1px solid var(--border-light);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fafafa;
+        }
+
+        .card-size {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--primary-dark);
+        }
+
+        .card-link {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* ==================================================
+            DETAIL VIEW & GALLERY
+        ================================================== */
+
+        .detail-view {
+            padding: 30px 0 60px;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .image-gallery-container {
+            margin-bottom: 30px;
+        }
+
+        .gallery-main-frame {
+            aspect-ratio: 16 / 9;
+            width: 100%;
+            margin-bottom: 15px;
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            background: #e0e0e0;
+        }
+
+        .gallery-main-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 0.4s ease;
+        }
+
+        .gallery-thumbs-row {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding: 5px 2px 15px;
+            scrollbar-width: none;
+            /* Hide scrollbar Firefox */
+            -ms-overflow-style: none;
+            /* Hide scrollbar IE */
+        }
+
+        .gallery-thumbs-row::-webkit-scrollbar {
+            display: none;
+            /* Hide scrollbar Chrome/Safari */
+        }
+
+        .gallery-thumb-item {
+            flex: 0 0 120px;
+            aspect-ratio: 3 / 2;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            overflow: hidden;
+            border: 3px solid transparent;
+            transition: var(--transition);
+            opacity: 0.6;
+        }
+
+        .gallery-thumb-item.active {
+            border-color: var(--primary);
+            opacity: 1;
+            transform: scale(0.95);
+        }
+
+        .gallery-thumb-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .content-box {
+            background: var(--white);
+            padding: 30px;
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow-sm);
+            margin-bottom: 30px;
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 25px;
+            gap: 20px;
+        }
+
+        .detail-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--primary-dark);
+            line-height: 1.2;
+        }
+
+        /* Facing badge */
+        .facing-chip {
+            display: inline-flex;
+            align-items: center;
+            /* ✅ correct */
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            white-space: nowrap;
+            /* prevents wrapping */
+        }
+
+        .facing-label {
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .facing-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #15803d;
+        }
+
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            padding: 20px 0;
+            margin: 20px 0;
+            border-top: 1px solid var(--bg-light);
+            border-bottom: 1px solid var(--bg-light);
+            gap: 20px;
+        }
+
+        .stat-item label {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--text-muted);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .stat-item p {
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--primary-dark);
+        }
+
+        .amenity-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .amenity-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            background: var(--bg-light);
+            padding: 10px 15px;
+            border-radius: var(--radius-sm);
+        }
+
+        .amenity-bullet {
+            color: var(--primary);
+            font-size: 18px;
+        }
+
+        /* Inquiry Form */
+        .sidebar {
+            position: sticky;
+            top: 100px;
+
+        }
+
+        .form-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .form-input,
+        .form-textarea {
+            width: 100%;
+            padding: 14px;
+            background: var(--bg-light);
+            border: 1px solid #e0e0e0;
+            border-radius: var(--radius-sm);
+            outline: none;
+            transition: var(--transition);
+            font-size: 16px;
+            font-family: inherit;
+        }
+
+        .form-input:focus,
+        .form-textarea:focus {
+            border-color: var(--primary);
+            background-color: var(--white);
+            box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1);
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 16px;
+            font-weight: 700;
+            font-size: 16px;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Utilities */
+        .hidden {
+            display: none !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ==================================================
+            RESPONSIVE BREAKPOINTS
+        ================================================== */
+
+        /* Tablets & Small Laptops */
+        @media (max-width: 1024px) {
+            .detail-view {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+                margin-top: 0;
+            }
+
+            .gallery-main-frame {
+                height: 400px;
+                aspect-ratio: auto;
+            }
+        }
+
+        /* Mobile Devices */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 16px;
+            }
+
+            .navbar {
+                height: 64px;
+            }
+
+            .logo {
+                font-size: 20px;
+            }
+
+            .filter-bar {
+                margin: 20px 0;
+                padding: 16px;
+                gap: 15px;
+            }
+
+            .property-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+
+            .detail-title {
+                font-size: 26px;
+            }
+
+            .detail-price {
+                font-size: 24px;
+            }
+
+            .detail-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .gallery-main-frame {
+                height: 280px;
+            }
+
+            .content-box {
+                padding: 20px;
+            }
+
+            .amenity-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .main-content-area {
+                width: 90vw;
+            }
+
+        }
+
+        /* Very Small Screens */
+        @media (max-width: 480px) {
+            .gallery-main-frame {
+                height: 220px;
+                border-radius: var(--radius-sm);
+            }
+
+            .gallery-thumb-item {
+                flex: 0 0 100px;
+
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+
+            .amenity-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <style>
+    .footer-logo {
+  font-family: 'Ethnocentric', sans-serif;
+  letter-spacing: 1.5px;
+  font-size: 20px;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.header-logo {
+  font-family: 'Ethnocentric', sans-serif;
+  letter-spacing: 1px;
+  line-height: 1;
+  font-size: 28px;
+  color: #00A300;
+  text-transform: uppercase;
+}
+</style>
+</head>
+
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">
+        <H5 class="header-logo">Yelagiri <br> Properties</H5>
+      </div>
+
+                <div class="mobile-menu-btn" onclick="toggleMenu()">☰</div>
+
+                <ul class="nav-links" id="nav-links">
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="about.html">About Us</a></li>
+                    <li><a href="properties.html">Properties</a></li>
+                    <li><a href="blog.html">Blog</a></li>
+                    <li><a href="contact.html" class="btn btn-primary">Contact Us</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+
+    <br>
+    <br>
+    <main class="container">
+        <!-- LISTING PAGE -->
+        <br>
+        <br>
+        <div id="navBack" class="hidden">
+            <button onclick="showListing()" class="back-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12" />
+                    <polyline points="12 19 5 12 12 5" />
+                </svg>
+                Back
+            </button>
+        </div>
+        <div id="listingPage" class="fade-in">
+            <div class="filter-bar">
+                <div class="filter-group">
+                    <label class="filter-label">Location</label>
+                    <select id="locationFilter" onchange="applyFilters()" class="filter-select">
+                        <option value="all">All Locations</option>
+                        <option value="Miami">Miami</option>
+                        <option value="New York">New York</option>
+                        <option value="Austin">Austin</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label class="filter-label">Property Type</label>
+                    <select id="typeFilter" onchange="applyFilters()" class="filter-select">
+                        <option value="all">All Types</option>
+                        <option value="Villa">Villa</option>
+                        <option value="Apartment">Apartment</option>
+                        <option value="Plot">Plot</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="propertyGrid" class="property-grid">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+
+        <!-- DETAIL PAGE -->
+        <div id="detailPage" class="hidden fade-in">
+            <div id="detailContent">
+                <!-- Injected via JS -->
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const data = {
+            "properties": [
+                {
+                    "id": 1,
+                    "name": "Athanavoor",
+                    "type": "Villa",
+                    "location": "Yelagiri",
+                    "facing": "North",
+                    "size": "2500 sqft",
+
+                    "description": "A beautiful luxury villa overlooking the Atlantic Ocean. This property features premium finishes, an open-concept living area, and stunning sunset views from the private balcony.",
+
+                    "images": [
+                        "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1200&q=80",
+                        "https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80",
+                        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+                        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80"
+                    ],
+
+                    "amenities": [
+                        "Pool",
+                        "Gym",
+                        "Beach Access",
+                        "Private Parking",
+                        "Smart Home"
+                    ]
+                },
+                {
+                    "id": 2,
+                    "name": "Nilavoor",
+                    "type": "plot",
+                    "location": "yelagiri",
+                    "facing": "North",
+                    "size": "2500 sqft",
+
+                    "description": "A beautiful luxury villa overlooking the Atlantic Ocean. This property features premium finishes, an open-concept living area, and stunning sunset views from the private balcony.",
+
+                    "images": [
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMj-4pQxq1t5v2KErJ9kT-z7eXW7Nisrpfrw&s",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRqUysDsdYNhogo86h2fw9bkmaBvrnOnzWTuQ&s",
+  "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRp6YqivLyHPWenv_6vPWynjphEG1RQ37S58w&s"
+]
+,
+
+                    "amenities": [
+                        "Pool",
+                        "Gym",
+                        "Beach Access",
+                        "Private Parking",
+                        "Smart Home"
+                    ]
+                },
+                {
+                    "id": 1,
+                    "name": "Mangalam",
+                    "type": "Villa",
+                    "location": "yelagiri",
+                    "facing": "North",
+                    "size": "2500 sqft",
+
+                    "description": "A beautiful luxury villa overlooking the Atlantic Ocean. This property features premium finishes, an open-concept living area, and stunning sunset views from the private balcony.",
+
+                    "images": [
+                        "https://images.unsplash.com/photo-1613490493576-7fde63acd811?auto=format&fit=crop&w=1200&q=80",
+                        "https://images.unsplash.com/photo-1613977257363-707ba9348227?auto=format&fit=crop&w=800&q=80",
+                        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+                        "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80"
+                    ],
+
+                    "amenities": [
+                        "Pool",
+                        "Gym",
+                        "Beach Access",
+                        "Private Parking",
+                        "Smart Home"
+                    ]
+                }
+            ]
+        };
+
+        function showListing() {
+            document.getElementById('listingPage').classList.remove('hidden');
+            document.getElementById('detailPage').classList.add('hidden');
+            document.getElementById('navBack').classList.add('hidden');
+            window.scrollTo(0, 0);
+            applyFilters();
+        }
+
+        function changeMainImage(thumbElement, imageUrl) {
+            const mainImg = document.getElementById('mainDisplayImg');
+            if (!mainImg) return;
+
+            mainImg.style.opacity = '0.4';
+
+            setTimeout(() => {
+                mainImg.src = imageUrl;
+                mainImg.style.opacity = '1';
+            }, 150);
+
+            const thumbnails = document.querySelectorAll('.gallery-thumb-item');
+            thumbnails.forEach(thumb => thumb.classList.remove('active'));
+            thumbElement.classList.add('active');
+        }
+
+        function showDetail(id) {
+            const p = data.properties.find(prop => prop.id === id);
+            if (!p) return;
+
+            document.getElementById('listingPage').classList.add('hidden');
+            document.getElementById('detailPage').classList.remove('hidden');
+            document.getElementById('navBack').classList.remove('hidden');
+            window.scrollTo(0, 0);
+
+            const detailContent = document.getElementById('detailContent');
+            detailContent.innerHTML = `
+                <div class="detail-view">
+                    <div class="main-content-area">
+                        <div class="image-gallery-container">
+                            <div class="gallery-main-frame">
+                                <img id="mainDisplayImg" src="${p.images[0]}" alt="Property Main">
+                            </div>
+                            <div class="gallery-thumbs-row">
+                                ${p.images.map((img, index) => `
+                                    <div class="gallery-thumb-item ${index === 0 ? 'active' : ''}" 
+                                         onclick="changeMainImage(this, '${img}')">
+                                        <img src="${img}" alt="Detail Thumbnail">
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="content-box">
+                            <div class="detail-header">
+                                <div>
+                                     <h1 class="detail-title">${p.name}</h1>
+
+ 
+                                    <p class="card-location">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                                        ${p.location} • ${p.type}
+                                    </p>
+                                   
+                                </div>
+                                
+                            </div>
+
+                            <div class="stats-grid">
+                                <div class="stat-item">
+                                    <label>Size</label>
+                                    <p>${p.size}</p>
+                                </div>
+                   
+                                <div class="stat-item">
+                                    <label>Status</label>
+                                    <p style="color: var(--primary)">Available</p>
+                                </div>
+                                             <div class="facing-stat">
+                                 ${p.facing ? `
+    <span class="facing-chip">
+      <span class="facing-label">Facing</span>
+      <span class="facing-value">🧭 ${p.facing}</span>
+    </span>
+  ` : ''}
+</div>
+                            </div>
+
+                            <h2 style="margin-bottom:12px; color: var(--primary-dark); font-size: 1.25rem;">About this ${p.type.toLowerCase()}</h2>
+                            <p style="color: var(--text-muted); margin-bottom: 32px; line-height: 1.8;">${p.description}</p>
+
+                            <h2 style="margin-bottom:15px; color: var(--primary-dark); font-size: 1.25rem;">Features & Amenities</h2>
+                            <div class="amenity-grid">
+                                ${p.amenities.map(a => `
+                                    <div class="amenity-item">
+                                        <span class="amenity-bullet">✓</span> ${a}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sidebar">
+                        <div class="content-box" style="border-top: 5px solid var(--primary);">
+                            <h3 class="form-title">Enquire Now</h3>
+                            <form onsubmit="event.preventDefault(); document.getElementById('successMsg').classList.remove('hidden'); this.style.opacity='0.5'; this.style.pointerEvents='none';">
+                                <div class="form-group">
+                                    <label>Full Name</label>
+                                    <input type="text" placeholder="Your Name" required class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label>Email Address</label>
+                                    <input type="email" placeholder="email@example.com" required class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label>Your Message</label>
+                                    <textarea rows="4" class="form-textarea" placeholder="I am interested in this ${p.type.toLowerCase()}..."></textarea>
+                                </div>
+                                <button type="submit" class="submit-btn">Send Inquiry</button>
+                                <div id="successMsg" class="hidden" style="background: #e8f5e9; color: #2e7d32; padding: 15px; border-radius: 8px; margin-top: 15px; text-align: center; font-weight: 600;">
+                                    ✓ Inquiry Sent Successfully!
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function applyFilters() {
+            const locVal = document.getElementById('locationFilter').value;
+            const typeVal = document.getElementById('typeFilter').value;
+
+            const filtered = data.properties.filter(p => {
+                const locMatch = locVal === 'all' || p.location === locVal;
+                const typeMatch = typeVal === 'all' || p.type === typeVal;
+                return locMatch && typeMatch;
+            });
+
+            const grid = document.getElementById('propertyGrid');
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; padding: 80px 20px; text-align: center; color: var(--text-muted);">
+                        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" style="margin-bottom: 15px; opacity: 0.5;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                        <p style="font-size: 1.1rem; font-weight: 500;">No properties match your selection.</p>
+                        <button onclick="document.getElementById('locationFilter').value='all'; document.getElementById('typeFilter').value='all'; applyFilters();" 
+                                style="margin-top: 15px; background: none; border: 1px solid var(--primary); color: var(--primary); padding: 8px 20px; border-radius: 100px; cursor: pointer;">
+                            Clear all filters
+                        </button>
+                    </div>`;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(p => `
+                <div class="property-card fade-in" onclick="showDetail(${p.id})">
+                    <div class="card-image-wrapper">
+                        <img src="${p.images[0]}" alt="${p.name}" loading="lazy">
+                        <div class="type-tag">${p.type}</div>
+                        
+                    </div>
+                    <div class="card-body">
+                        <h3 class="card-title">${p.name}</h3>
+                        <p class="card-location">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            ${p.location}
+                        </p>
+                        <p class="card-desc">${p.description}</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-size">📐 ${p.size}</span>
+                        <span class="card-link">
+                            VIEW DETAILS 
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+                        </span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        window.onload = applyFilters;
+    </script>
+    <!-- FOOTER LOAD -->
+    <div id="site-footer"></div>
+
+    <script>
+        fetch('./partials/header.html')
+            .then(res => res.text())
+            .then(html => document.getElementById('site-header').innerHTML = html);
+
+        fetch('./partials/footer.html')
+            .then(res => res.text())
+            .then(html => document.getElementById('site-footer').innerHTML = html);
+    </script>
+</body>
+
+</html>

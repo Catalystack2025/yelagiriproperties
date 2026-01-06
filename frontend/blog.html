@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title id="pageTitle">Blog | Yelagiri Properties</title>
+  <meta name="description" id="pageDesc" content="Latest blogs from Yelagiri Properties">
+
+  <link rel="stylesheet" href="assets/css/style.css">
+  
+</head>
+<style>
+    .footer-logo {
+  font-family: 'Ethnocentric', sans-serif;
+  letter-spacing: 1.5px;
+  font-size: 20px;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.header-logo {
+  font-family: 'Ethnocentric', sans-serif;
+  letter-spacing: 1px;
+  line-height: 1;
+  font-size: 28px;
+  color: #00A300;
+  text-transform: uppercase;
+}
+</style>
+
+
+<body>
+
+  <!-- HEADER -->
+  <div id="site-header"></div>
+  <br>
+  <main class="section-padding">
+    <div class="container">
+
+      <!-- BLOG LIST -->
+      <section id="blogListSection">
+        <div class="section-title">
+          <h1>Latest Blogs</h1>
+          <p>Expert insights, guides, and updates from Yelagiri Properties.</p>
+        </div>
+
+        <div class="blog-grid" id="blogGrid"></div>
+
+      </section>
+
+
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <div id="site-footer"></div>
+
+  <!-- COMMON LOGIC -->
+  <script>
+    fetch('./partials/header.html')
+      .then(res => res.text())
+      .then(html => document.getElementById('site-header').innerHTML = html);
+
+    fetch('./partials/footer.html')
+      .then(res => res.text())
+      .then(html => document.getElementById('site-footer').innerHTML = html);
+  </script>
+
+  <!-- ✅ DYNAMIC BLOG LOGIC (PROPER WAY) -->
+  <script src="assets/js/content.js"></script>
+
+</body>
+
+</html>
