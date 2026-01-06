@@ -1,9 +1,9 @@
-function toggleMenu() {
-  const nav = document.getElementById("nav-links");
-  if (nav) {
-    nav.classList.toggle("active");
-  }
-}
+// function toggleMenu() {
+//   const nav = document.getElementById("nav-links");
+//   if (nav) {
+//     nav.classList.toggle("active");
+//   }
+// }
 
 document.addEventListener('DOMContentLoaded', () => {
   fetchContent().then(data => {
