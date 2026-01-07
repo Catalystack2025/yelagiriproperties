@@ -65,7 +65,8 @@ ul {
 }
 
 .section-padding {
-  padding: 90px 0;
+  padding-top: 100px;
+  padding-bottom: 40px;
 }
 
 /* ==================================================
@@ -87,7 +88,7 @@ ul {
 }
 
 .btn-primary:hover {
-  background: var(--primary-dark);
+  background: var(--accent);
 }
 
 .btn-outline {
@@ -129,8 +130,10 @@ nav {
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 28px;
+  gap: 30px;
   list-style: none;
+  opacity: 2;
+
 }
 
 .nav-links a {
@@ -145,7 +148,8 @@ nav {
   cursor: pointer;
   color: #222;
 }
-   .footer-logo {
+
+.footer-logo {
   font-family: 'Ethnocentric', sans-serif;
   letter-spacing: 1.5px;
   font-size: 20px;
@@ -161,21 +165,22 @@ nav {
   color: #00A300;
   text-transform: uppercase;
 }
+
 /* MOBILE MENU */
 @media (max-width: 768px) {
 
   .mobile-menu-btn {
     display: block;
   }
-  
-.header-logo {
-  font-family: 'Ethnocentric', sans-serif;
-  letter-spacing: 1px;
-  line-height: 1;
-  font-size: 18px;
-  color: #00A300;
-  text-transform: uppercase;
-}
+
+  .header-logo {
+    font-family: 'Ethnocentric', sans-serif;
+    letter-spacing: 1px;
+    line-height: 1;
+    font-size: 18px;
+    color: #00A300;
+    text-transform: uppercase;
+  }
 
   .nav-links {
     display: none;
@@ -189,12 +194,13 @@ nav {
     padding: 20px 0;
     display: none;
   }
+
   nav {
-  height: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
 
   .nav-links.active {
     display: flex;
@@ -224,7 +230,7 @@ nav {
   bottom: 0;
   width: 0;
   height: 3px;
-  background: var(--accent);
+  background: var(--primary);
   border-radius: 4px;
   transition: width 0.3s ease;
 }
@@ -251,7 +257,7 @@ nav {
   text-align: center;
 
   color: #fff;
-  margin-top: 80px;
+  margin-top: 60px;
 
   position: relative;
   transition: background-image 1s ease-in-out;
@@ -269,6 +275,19 @@ nav {
 .hero-content {
   position: relative;
   z-index: 2;
+}.hero-actions {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+@media (max-width: 768px) {
+    .hero-actions {
+        flex-direction: column;
+        gap: 20px;
+        padding: 0 40px;
+    }
 }
 
 
@@ -515,7 +534,7 @@ nav {
   }
 }
 
-
+/* 
 
 /* ==================================================
    ABOUT SECTION (REFERENCE IMAGE MATCH)
@@ -904,7 +923,7 @@ nav {
   color: var(--primary);
 }
 
-
+ */
 
 /* ==================================================
    CTA SECTION
@@ -935,6 +954,7 @@ nav {
 .form-group {
   margin-bottom: 14px;
 }
+
 
 .form-group label {
   font-size: 0.85rem;
@@ -1011,23 +1031,21 @@ footer {
   .nav-links {
     display: none;
     position: absolute;
-    top: 80px;
+    top: 60px;
     left: 0;
     width: 100%;
     background: var(--white);
     flex-direction: column;
     padding: 25px;
     box-shadow: var(--shadow-sm);
+    gap: 0px;
   }
 
   .nav-links.active {
     display: flex;
   }
 
-  .mobile-menu-btn {
-    display: block;
-  }
-
+  
   .hero-content h1 {
     font-size: 2.2rem;
   }
@@ -1054,13 +1072,14 @@ footer {
 
   /* ---------- HERO ---------- */
   .hero {
-    min-height: 75vh;
+    min-height: 60vh;
     padding: 40px 0;
+
   }
 
   .hero-content h1 {
     font-size: 1.9rem;
-    line-height: 1.3;
+    line-height: 1.2;
   }
 
   .hero-content p {
@@ -1152,6 +1171,66 @@ footer {
 }
 
 /*===footer css===*/
+/* PRELOADER */
+#loader {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-light);
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    transition: opacity 0.8s ease; /* fade-out */
+}
 
-       
-       
+.loader-hidden {
+    opacity: 0; /* no shifting, no scrolling issue */
+}
+
+.loader-content {
+    text-align: center;
+}
+
+.loader-text {
+    font-family: 'Tenor Sans', sans-serif;
+    font-size: clamp(1.5rem, 5vw, 2.5rem);
+    letter-spacing: 12px;
+    color: var(--primary);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    opacity: 0;
+    transform: translateY(20px);
+    animation: revealText 0.8s ease-out forwards;
+}
+
+.loader-bar-container {
+    width: 200px;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+    margin: 0 auto;
+}
+
+.loader-bar {
+    position: absolute;
+    left: 0;
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    transition: width 0.4s ease;
+}
+
+@keyframes revealText {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+body.loading-active {
+    overflow: hidden;
+}
+
