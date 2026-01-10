@@ -1,4 +1,5 @@
 <?php
+
 // Index Page
 ?>
 <!DOCTYPE html>
@@ -29,6 +30,8 @@
   color: #00A300;
   text-transform: uppercase;
 }
+
+
 </style>
 
 </head>
@@ -72,6 +75,87 @@
     </div>
   </div>
 </section>
+<?php include './data/property-data.php'; ?>
+
+<section class="featured-properties-section">
+    <div class="featured-container">
+
+        <div class="section-title">
+            <h2 class="ethno-font">Featured Properties</h2>
+           
+            <p>Discover our curated collection of plots, villas, and homestays across Yelagiri.</p>
+        </div>
+        <br>
+
+        <?php
+            // Shuffle and pick any 6 properties
+            $featured = $properties;
+            shuffle($featured);
+            $featured = array_slice($featured, 0, 6);
+        ?>
+
+        <div class="property-grid">
+            <?php foreach ($featured as $p): ?>
+                <?php $img = $p['images'][0]; ?>
+
+                <div class="property-card">
+
+                    <!-- IMAGE BLOCK -->
+                    <div class="card-media">
+                        <span class="type-badge"><?= htmlspecialchars($p['type']); ?></span>
+
+                        <img src="<?= htmlspecialchars($img); ?>" 
+                             alt="<?= htmlspecialchars($p['name']); ?>">
+
+                        <div class="card-overlay">
+                            <!-- FIXED: Redirects DIRECTLY to property-details.php -->
+                            <a href="property-details.php?id=<?= $p['id']; ?>" class="overlay-btn">
+    View Details
+</a>
+
+                        </div>
+                    </div>
+
+                    <!-- CONTENT BLOCK -->
+                    <div class="card-info">
+
+                        <div class="location-row">
+                            <svg class="loc-icon" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"></path>
+                            </svg>
+                            <?= htmlspecialchars($p['location']); ?>
+                        </div>
+
+                        <h3 class="property-title"><?= htmlspecialchars($p['name']); ?></h3>
+
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <span class="spec-label">Area</span>
+                                <span class="spec-val"><?= htmlspecialchars($p['size']); ?></span>
+                            </div>
+                            <div class="spec-item">
+                                <span class="spec-label">Facing</span>
+                                <span class="spec-val"><?= htmlspecialchars($p['facing']); ?></span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            <?php endforeach; ?>
+        </div>
+
+        <!-- SHOW BUTTON ONLY IF MORE THAN 6 PROPERTIES -->
+        <?php if (count($properties) > 6): ?>
+        <div class="view-all-wrapper">
+            <a href="./properties.php" class="view-all-btn">View All Properties</a>
+        </div>
+        <?php endif; ?>
+
+    </div>
+</section>
+
 
 <!-- WHY CHOOSE US -->
 <section class="section-padding why-choose">

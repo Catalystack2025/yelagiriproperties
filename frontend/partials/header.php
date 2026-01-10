@@ -30,7 +30,9 @@
   <div class="container">
     <nav>
       <div class="logo">
+        <a href="index.php" style="text-decoration: none; color: inherit;">
         <h5 class="header-logo">Yelagiri <br> Properties</h5>
+        </a>
       </div>
 
       <div class="mobile-menu-btn" onclick="toggleMenu()">☰</div>
