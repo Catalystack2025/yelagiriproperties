@@ -1,41 +1,34 @@
 {
-  "hero": {
-    "title": "Premium Villas & Plots in Yelagiri Hills",
-    "description": "Explore legally verified villas, scenic plots, and secure investment opportunities in Yelagiri Hills. Trusted real estate service with transparent pricing and clear ownership.",
-
-    "slides": [
-      "https://images.unsplash.com/photo-1494526585095-c41746248156",
-      "https://images.unsplash.com/photo-1502005229762-cf1b2da7c5d6"
-    ],
-
-    "interval": 4000
-  },
-
-  "blogs": [
-    {
-      "slug": "why-yelagiri-investment",
-      "date": "15 Jan 2025",
-      "title": "Why Yelagiri Is the Perfect Hill Station for Property Investment",
-      "excerpt": "Learn why Yelagiri Hills are gaining popularity among real estate investors.",
-      "image": "https://images.unsplash.com/photo-1501183638710-841dd1904471",
-      "content": "<p>Yelagiri is emerging as one of the most promising hill station investment destinations...</p>"
+    "hero": {
+        "title": "Premium Villas & Plots in Yelagiri Hills",
+        "description": "Explore legally verified villas, scenic plots, and secure investment opportunities in Yelagiri Hills. Trusted real estate service with transparent pricing and clear ownership.",
+        "slides": [],
+        "interval": 4000
     },
-    {
-      "slug": "villas-vs-plots",
-      "date": "20 Jan 2025",
-      "title": "Villas vs Plots: What Should You Choose?",
-      "excerpt": "A complete guide to choosing the right property investment.",
-      "image": "https://images.unsplash.com/photo-1494526585095-c41746248156",
-      "content": "<p>When investing in Yelagiri, buyers often compare villas and plots...</p>"
-    },
-     {
-      "slug": "villas-vs-plots",
-      "date": "20 Jan 2025",
-      "title": "Villas vs Plots: What Should You Choose?",
-      "excerpt": "A complete guide to choosing the right property investment.",
-      "image": "https://images.unsplash.com/photo-1494526585095-c41746248156",
-      "content": "<p>When investing in Yelagiri, buyers often compare villas and plots...</p>"
-    }
-  ]
+    "blogs": [
+        {
+            "slug": "why-yelagiri-investment",
+            "date": "15 Jan 2025",
+            "title": "Why Yelagiri Is the Perfect Hill Station for Property Investment",
+            "excerpt": "Learn why Yelagiri Hills are gaining popularity among real estate investors.",
+            "image": "https:\/\/images.unsplash.com\/photo-1501183638710-841dd1904471",
+            "content": "<p>Yelagiri is emerging as one of the most promising hill station investment destinations...<\/p>"
+        },
+        {
+            "slug": "villas-vs-plots",
+            "date": "20 Jan 2025",
+            "title": "Villas vs Plots: What Should You Choose?",
+            "excerpt": "A complete guide to choosing the right property investment.",
+            "image": "https:\/\/images.unsplash.com\/photo-1494526585095-c41746248156",
+            "content": "<p>When investing in Yelagiri, buyers often compare villas and plots...<\/p>"
+        },
+        {
+            "slug": "villas-vs-plots",
+            "date": "20 Jan 2025",
+            "title": "Villas vs Plots: What Should You Choose?",
+            "excerpt": "A complete guide to choosing the right property investment.",
+            "image": "https:\/\/images.unsplash.com\/photo-1494526585095-c41746248156",
+            "content": "<p>When investing in Yelagiri, buyers often compare villas and plots...<\/p>"
+        }
+    ]
 }
- 

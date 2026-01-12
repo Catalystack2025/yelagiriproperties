@@ -33,39 +33,38 @@ if (loader && loaderBar) {
 }
 
 /* ----------------------------------------
-   PROPERTY CARD GENERATOR
+   PROPERTY CARD GENERATOR (DB VERSION)
 ---------------------------------------- */
 function generateCard(p) {
+    const image = p.main_image ? `./uploads/${p.main_image}` : "./assets/images/no-image.jpg";
+
     return `
-        <div class="property-card fade-in">
+        <div class="property-card fade-in" onclick="showDetail(${p.id})">
             <div class="card-image-wrapper">
-                <img src="${p.images[0]}" alt="${p.name}">
+                <img src="${image}" alt="${p.name}">
                 <div class="type-tag">${p.type}</div>
             </div>
 
             <div class="card-body">
                 <h3 class="card-title">${p.name}</h3>
                 <p class="card-location">📍 ${p.location}</p>
-                <p class="card-desc">${p.description}</p>
+                <p class="card-desc">${p.description?.substring(0, 70) || ""}...</p>
             </div>
 
             <div class="card-footer">
                 <span class="card-size">📐 ${p.size}</span>
-                <a href="property-details.php?id=${p.id}" class="card-link">VIEW DETAILS →</a>
+                <a href="javascript:void(0)" class="card-link">VIEW DETAILS →</a>
             </div>
         </div>
     `;
 }
 
 /* ----------------------------------------
-   APPLY FILTERS (FIXED LOCATION LOGIC)
+   APPLY FILTERS
 ---------------------------------------- */
 function applyFilters() {
-    // Check if data is available to prevent errors
-    if (typeof data === 'undefined' || !data.properties) return;
+    if (!data || !data.properties) return;
 
-    // Get filter values and convert to lowercase
-    // Default to "all" if the element is missing or value is empty
     const locFilter = (document.getElementById('locationFilter')?.value || "all").toLowerCase();
     const typeFilter = (document.getElementById('typeFilter')?.value || "all").toLowerCase();
 
@@ -73,66 +72,55 @@ function applyFilters() {
     const villaGrid = document.getElementById('villaGrid');
     const homestayGrid = document.getElementById('homestayGrid');
 
-    // Reset grids if they exist
     if (plotGrid) plotGrid.innerHTML = "";
     if (villaGrid) villaGrid.innerHTML = "";
     if (homestayGrid) homestayGrid.innerHTML = "";
 
     let plots = 0, villas = 0, homestays = 0;
 
-    // Iterate through properties
     data.properties.forEach(p => {
         const pLocation = p.location.toLowerCase();
         const pType = p.type.toLowerCase();
 
-        // Logic: If filter is "all", it matches everything. 
-        // Otherwise, it checks if the property location includes the filter string.
-        const locMatch = (locFilter === 'all' || pLocation.includes(locFilter));
-        const typeMatch = (typeFilter === 'all' || pType.includes(typeFilter));
+        const locMatch = (locFilter === "all" || pLocation.includes(locFilter));
+        const typeMatch = (typeFilter === "all" || pType.includes(typeFilter));
 
-        if (locMatch && typeMatch) {
-            const cardHTML = generateCard(p);
-            
-            // Categorize into grids based on type
-            if (pType.includes("plot")) {
-                plots++;
-                if (plotGrid) plotGrid.innerHTML += cardHTML;
-            } else if (pType.includes("villa")) {
-                villas++;
-                if (villaGrid) villaGrid.innerHTML += cardHTML;
-            } else if (pType.includes("stay") || pType.includes("home")) {
-                homestays++;
-                if (homestayGrid) homestayGrid.innerHTML += cardHTML;
-            }
+        if (!locMatch || !typeMatch) return;
+
+        const cardHTML = generateCard(p);
+
+        if (pType.includes("plot")) {
+            plots++; plotGrid.innerHTML += cardHTML;
+        } else if (pType.includes("villa")) {
+            villas++; villaGrid.innerHTML += cardHTML;
+        } else if (pType.includes("stay") || pType.includes("home")) {
+            homestays++; homestayGrid.innerHTML += cardHTML;
         }
     });
 
-    // Toggle section visibility based on whether results were found
-    if (document.getElementById('plotSection')) 
+    if (document.getElementById('plotSection'))
         document.getElementById('plotSection').style.display = plots ? "block" : "none";
-    if (document.getElementById('villaSection')) 
+    if (document.getElementById('villaSection'))
         document.getElementById('villaSection').style.display = villas ? "block" : "none";
-    if (document.getElementById('homestaySection')) 
+    if (document.getElementById('homestaySection'))
         document.getElementById('homestaySection').style.display = homestays ? "block" : "none";
 }
 
-// Initial call to populate data as soon as DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', applyFilters);
-} else {
-    applyFilters();
-}
+document.readyState === 'loading'
+    ? document.addEventListener('DOMContentLoaded', applyFilters)
+    : applyFilters();
 
 /* ----------------------------------------
-   SHOW DETAIL PAGE
+   SHOW PROPERTY DETAILS (DB Compatible)
 ---------------------------------------- */
 function showDetail(id) {
     const p = data.properties.find(x => x.id == id);
     if (!p) return;
 
+    const image = p.main_image ? `./uploads/${p.main_image}` : "./assets/images/no-image.jpg";
+
     document.getElementById('listingPage').classList.add('hidden');
     document.getElementById('detailPage').classList.remove('hidden');
-    document.getElementById('navBack').classList.remove('hidden');
 
     window.scrollTo(0, 0);
 
@@ -140,16 +128,13 @@ function showDetail(id) {
         <div class="detail-header-grid">
             <div class="gallery-column">
                 <div class="gallery-main-frame">
-                    <img id="mainDisplayImg" src="${p.images[0]}" alt="${p.name}">
+                    <img id="mainDisplayImg" src="${image}" alt="${p.name}">
                 </div>
 
                 <div class="gallery-thumbs-row">
-                    ${p.images.map((img, i) => `
-                        <div class="gallery-thumb-item ${i === 0 ? 'active' : ''}"
-                             onclick="updateGallery(this, '${img}')">
-                            <img src="${img}">
-                        </div>
-                    `).join('')}
+                    <div class="gallery-thumb-item active">
+                        <img onclick="updateGallery(this, '${image}')" src="${image}">
+                    </div>
                 </div>
             </div>
 
@@ -158,10 +143,16 @@ function showDetail(id) {
                     <h3 class="form-title">Enquire Now</h3>
 
                     <form onsubmit="event.preventDefault(); successMsg.classList.remove('hidden'); this.style.opacity='0.5';">
+
                         <div class="form-group"><label>Name</label><input type="text" required class="form-input"></div>
+
                         <div class="form-group"><label>Phone</label><input type="tel" required class="form-input"></div>
-                        <div class="form-group"><label>Message</label>
-                            <textarea class="form-textarea" rows="3">I'm interested in ${p.name}...</textarea></div>
+
+                        <div class="form-group">
+                            <label>Message</label>
+                            <textarea class="form-textarea" rows="3">I'm interested in ${p.name}...</textarea>
+                        </div>
+
                         <button class="submit-btn">Send Interest</button>
 
                         <div id="successMsg" class="hidden" style="margin-top:10px; color:var(--primary); font-weight:700;">
@@ -179,8 +170,8 @@ function showDetail(id) {
             <div class="stats-grid">
                 <div><label>Total Area</label><p>${p.size}</p></div>
                 <div><label>Facing</label><p>🧭 ${p.facing}</p></div>
-                <div><label>Availability</label><p style="color:var(--primary)">Available</p></div>
-                <div><label>Location</label><p>${p.location}</p></div>
+                <div><label>Availability</label><p style="color:var(--primary)">${p.status}</p></div>
+                <div><label>Dimensions</label><p>${p.dimensions}</p></div>
             </div>
 
             <h3>About this Property</h3>
@@ -209,7 +200,6 @@ function updateGallery(el, src) {
 function showListing() {
     document.getElementById('detailPage').classList.add('hidden');
     document.getElementById('listingPage').classList.remove('hidden');
-    document.getElementById('navBack').classList.add('hidden');
     applyFilters();
 }
 

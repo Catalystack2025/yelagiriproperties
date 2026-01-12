@@ -1,6 +1,38 @@
 <?php
-// Load shared dataset
-include './data/property-data.php';
+include __DIR__ . '/../admin/includes/db.php'; // DB connection
+
+/* ========================
+   FETCH ALL PROPERTIES
+======================== */
+$properties = [];
+$sql = "SELECT * FROM properties ORDER BY id DESC";
+$res = $conn->query($sql);
+
+while ($row = $res->fetch_assoc()) {
+
+    // Fetch main image (first uploaded image)
+    $imgRes = $conn->query("SELECT image_path FROM property_images WHERE property_id={$row['id']} LIMIT 1");
+    $imgRow = $imgRes->fetch_assoc();
+    $row['main_image'] = $imgRow['image_path'] ?? null;
+
+    // Fetch amenities
+    $amens = [];
+    $amenRes = $conn->query("
+        SELECT a.name 
+        FROM amenities a 
+        JOIN property_amenities pa 
+        ON pa.amenity_id = a.id
+        WHERE pa.property_id = {$row['id']}
+    ");
+    while ($a = $amenRes->fetch_assoc()) {
+        $amens[] = $a['name'];
+    }
+    $row['amenities'] = $amens;
+
+    $properties[] = $row;
+
+    
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -18,10 +50,7 @@ include './data/property-data.php';
     <!-- HEADER -->
     <?php include './partials/header.php'; ?>
 
-    <!-- MAIN CONTENT -->
     <main class="container">
-
-      
 
         <!-- LISTING PAGE -->
         <div id="listingPage" class="properties-margin">
@@ -32,7 +61,13 @@ include './data/property-data.php';
                     <label class="filter-label">Location</label>
                     <select id="locationFilter" onchange="applyFilters()" class="filter-select">
                         <option value="all">All Locations</option>
-                        <option value="Yelagiri">Yelagiri</option>
+
+                        <?php
+                        $locs = $conn->query("SELECT DISTINCT location FROM properties ORDER BY location ASC");
+                        while ($l = $locs->fetch_assoc()) {
+                            echo "<option value='{$l['location']}'>{$l['location']}</option>";
+                        }
+                        ?>
                     </select>
                 </div>
 
@@ -42,7 +77,7 @@ include './data/property-data.php';
                         <option value="all">All Types</option>
                         <option value="Plot">Plot</option>
                         <option value="Villa">Villa</option>
-                        <option value="Home Stay">Home Stay</option>
+                        <option value="Home Stays">Home Stays</option>
                     </select>
                 </div>
             </div>
@@ -71,7 +106,7 @@ include './data/property-data.php';
     <!-- FOOTER -->
     <?php include './partials/footer.php'; ?>
 
-    <!-- DATA Injected to JS -->
+    <!-- Inject Dynamic Data to JS -->
     <script>
         const data = <?php echo json_encode(["properties" => $properties], JSON_UNESCAPED_SLASHES); ?>;
     </script>

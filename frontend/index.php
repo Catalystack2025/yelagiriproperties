@@ -1,6 +1,5 @@
 <?php
-
-// Index Page
+include __DIR__ . '/../admin/includes/db.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -10,41 +9,70 @@
 
   <title>Yelagiri Properties | Premium Villas & Plots</title>
 
-  <!-- CSS -->
   <link rel="stylesheet" href="./assets/css/style.css" />
-  <script src="./assets/js/content.js"></script>
+  <script src="./assets/js/content.js" defer></script>
 
-<style>
-.footer-logo {
-  font-family: 'Ethnocentric', sans-serif;
-  letter-spacing: 1.5px;
-  font-size: 20px;
-  color: #ffffff;
-  text-transform: uppercase;
-}
-.header-logo {
-  font-family: 'Ethnocentric', sans-serif;
-  letter-spacing: 1px;
-  line-height: 1;
-  font-size: 28px;
-  color: #00A300;
-  text-transform: uppercase;
-}
+  <style>
+    .footer-logo {
+      font-family: 'Ethnocentric', sans-serif;
+      letter-spacing: 1.5px;
+      font-size: 20px;
+      color: #ffffff;
+      text-transform: uppercase;
+    }
 
+    .header-logo {
+      font-family: 'Ethnocentric', sans-serif;
+      letter-spacing: 1px;
+      line-height: 1;
+      font-size: 28px;
+      color: #00A300;
+      text-transform: uppercase;
+    }
 
-</style>
+    /* HERO SLIDER */
+    .hero {
+        position: relative;
+        overflow: hidden;
+        height: 90vh;
+        display: flex;
+        align-items: center;
+    }
+
+    .hero-slider {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+    }
+
+    .hero-slide {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+    }
+
+    .hero-slide.active {
+        opacity: 1;
+    }
+  </style>
 
 </head>
 <body>
 
-<!-- Loader -->
+<!-- LOADER -->
 <div id="loader">
   <div class="loader-content">
     <div class="loader-text">YELAGIRI PROPERTIES</div>
     <div class="loader-bar-container">
       <div class="loader-bar" id="loaderBar"></div>
     </div>
-    <p style="color: rgba(255,255,255,0.4); font-size: 10px; letter-spacing: 4px; margin-top: 15px; font-family: sans-serif;">
+    <p style="color: rgba(255,255,255,0.4); font-size: 10px; letter-spacing: 4px;">
       PROPERTIES
     </p>
   </div>
@@ -55,26 +83,65 @@
 
 <main>
 
+<?php
+$hero = $conn->query("SELECT * FROM hero_settings WHERE id = 1")->fetch_assoc();
+$slides = $conn->query("SELECT * FROM hero_slides ORDER BY sort_order ASC, id DESC");
+?>
+
 <!-- HERO SECTION -->
 <section id="hero" class="hero">
+
+  <div class="hero-slider">
+      <?php if ($slides->num_rows > 0): ?>
+          <?php while($s = $slides->fetch_assoc()): ?>
+              <div class="hero-slide" style="background-image:url('../admin/uploads/hero/<?= $s['image']; ?>');"></div>
+          <?php endwhile; ?>
+      <?php else: ?>
+          <div class="hero-slide active" style="background-image:url('assets/img/default-hero.jpg');"></div>
+      <?php endif; ?>
+  </div>
+
   <div class="container hero-content">
-    <h1 id="heroTitle"></h1>
-    <p id="heroDescription"></p>
+    <h1><?= htmlspecialchars($hero['title']); ?></h1>
+    <p><?= htmlspecialchars($hero['description']); ?></p>
 
     <br>
 
-    
     <div class="hero-actions">
-      <a href="properties.php" id="heroPrimaryBtn" class="btn btn-primary">
-        View Properties
-      </a>
-
-      <a href="contact.php" id="heroSecondaryBtn" class="btn btn-outline">
-        Book Free Site Visit
-      </a>
+      <a href="properties.php" class="btn btn-primary">View Properties</a>
+      <a href="contact.php" class="btn btn-outline">Book Free Site Visit</a>
     </div>
   </div>
+
 </section>
+
+<!-- HERO SLIDER JS -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    let interval = <?= (int)$hero['slide_interval']; ?>;
+    let heroSlides = document.querySelectorAll(".hero-slide");
+    let index = 0;
+
+    if (heroSlides.length > 0) {
+
+        function showSlide(i) {
+            heroSlides.forEach(s => s.classList.remove("active"));
+            heroSlides[i].classList.add("active");
+        }
+
+        showSlide(index);
+
+        setInterval(() => {
+            index = (index + 1) % heroSlides.length;
+            showSlide(index);
+        }, interval);
+    }
+
+});
+</script>
+
+<!-- FEATURED PROPERTIES -->
 <?php include './data/property-data.php'; ?>
 
 <section class="featured-properties-section">
@@ -82,13 +149,12 @@
 
         <div class="section-title">
             <h2 class="ethno-font">Featured Properties</h2>
-           
             <p>Discover our curated collection of plots, villas, and homestays across Yelagiri.</p>
         </div>
+
         <br>
 
         <?php
-            // Shuffle and pick any 6 properties
             $featured = $properties;
             shuffle($featured);
             $featured = array_slice($featured, 0, 6);
@@ -99,24 +165,16 @@
                 <?php $img = $p['images'][0]; ?>
 
                 <div class="property-card">
-
-                    <!-- IMAGE BLOCK -->
                     <div class="card-media">
                         <span class="type-badge"><?= htmlspecialchars($p['type']); ?></span>
 
-                        <img src="<?= htmlspecialchars($img); ?>" 
-                             alt="<?= htmlspecialchars($p['name']); ?>">
+                        <img src="<?= htmlspecialchars($img); ?>" alt="<?= htmlspecialchars($p['name']); ?>">
 
                         <div class="card-overlay">
-                            <!-- FIXED: Redirects DIRECTLY to property-details.php -->
-                            <a href="property-details.php?id=<?= $p['id']; ?>" class="overlay-btn">
-    View Details
-</a>
-
+                            <a href="property-details.php?id=<?= $p['id']; ?>" class="overlay-btn">View Details</a>
                         </div>
                     </div>
 
-                    <!-- CONTENT BLOCK -->
                     <div class="card-info">
 
                         <div class="location-row">
@@ -146,7 +204,6 @@
             <?php endforeach; ?>
         </div>
 
-        <!-- SHOW BUTTON ONLY IF MORE THAN 6 PROPERTIES -->
         <?php if (count($properties) > 6): ?>
         <div class="view-all-wrapper">
             <a href="./properties.php" class="view-all-btn">View All Properties</a>
@@ -155,7 +212,6 @@
 
     </div>
 </section>
-
 
 <!-- WHY CHOOSE US -->
 <section class="section-padding why-choose">
@@ -170,52 +226,19 @@
     </div>
 
     <div class="why-grid">
-
-      <div class="why-card">
-        <div class="why-icon">✓</div>
-        <h3>100% Legal Verification</h3>
-        <p>All our plots and villas are thoroughly verified with clear titles, DTCP approvals, and transparent documentation.</p>
-      </div>
-
-      <div class="why-card">
-        <div class="why-icon">⛰️</div>
-        <h3>Prime Hilltop Locations</h3>
-        <p>Carefully selected scenic locations offering peaceful living, fresh air, and strong appreciation value.</p>
-      </div>
-
-      <div class="why-card">
-        <div class="why-icon">🤝</div>
-        <h3>End-to-End Support</h3>
-        <p>From site visits to registration, our team supports you for a smooth buying experience.</p>
-      </div>
-
-      <div class="why-card">
-        <div class="why-icon">📈</div>
-        <h3>High Investment Returns</h3>
-        <p>Yelagiri’s growing demand makes our properties ideal for lifestyle and long-term investment.</p>
-      </div>
-
-      <div class="why-card">
-        <div class="why-icon">🧭</div>
-        <h3>Local Market Expertise</h3>
-        <p>15+ years of experience understanding the land, trends, and growth areas.</p>
-      </div>
-
-      <div class="why-card">
-        <div class="why-icon">💰</div>
-        <h3>Transparent Pricing</h3>
-        <p>No hidden charges. Clear and honest pricing.</p>
-      </div>
-
+      <div class="why-card"><div class="why-icon">✓</div><h3>100% Legal Verification</h3><p>All our plots and villas are thoroughly verified.</p></div>
+      <div class="why-card"><div class="why-icon">⛰️</div><h3>Prime Hilltop Locations</h3><p>Carefully selected scenic locations.</p></div>
+      <div class="why-card"><div class="why-icon">🤝</div><h3>End-to-End Support</h3><p>From site visits to registration.</p></div>
+      <div class="why-card"><div class="why-icon">📈</div><h3>High Investment Returns</h3><p>Perfect for long-term investment.</p></div>
+      <div class="why-card"><div class="why-icon">🧭</div><h3>Local Market Expertise</h3><p>15+ years of experience.</p></div>
+      <div class="why-card"><div class="why-icon">💰</div><h3>Transparent Pricing</h3><p>No hidden charges.</p></div>
     </div>
 
   </div>
 </section>
 
-<br>
-
+<!-- BLOG SECTION -->
 <div class="container">
-  <!-- BLOG SECTION -->
   <section id="blogListSection">
     <div class="section-title">
       <h1>Latest Blogs</h1>
@@ -226,8 +249,6 @@
   </section>
 </div>
 
-<br>
-
 <!-- CTA FORM -->
 <section class="section-padding cta-section">
   <div class="container">
@@ -237,50 +258,23 @@
       <div class="cta-content">
         <span class="sub-heading">Free Consultation</span>
         <h2>Looking to Invest in Yelagiri?</h2>
-        <p>
-          Get expert guidance on verified plots and villas.
-          We help you choose the right property for your needs.
-        </p>
-
-        <ul class="cta-points">
-          <li>✓ 100% Legal Verification</li>
-          <li>✓ Prime Hilltop Locations</li>
-          <li>✓ Transparent Pricing</li>
-        </ul>
+        <p>Get expert guidance on verified plots and villas.</p>
       </div>
 
       <form class="cta-form" method="post" action="submit-enquiry.php">
-        <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" name="name" required placeholder="Enter your name" />
+        <div class="form-group"><label>Full Name</label><input type="text" name="name" required /></div>
+        <div class="form-group"><label>Mobile Number</label><input type="tel" name="phone" required /></div>
+        <div class="form-group"><label>Email</label><input type="email" name="email" /></div>
+        <div class="form-group"><label>Interested In</label>
+            <select name="interest">
+                <option value="">Select Property Type</option>
+                <option value="Plots">Plots</option>
+                <option value="Villas">Villas</option>
+                <option value="Weekend Home">Weekend Home</option>
+                <option value="Investment">Investment</option>
+            </select>
         </div>
-
-        <div class="form-group">
-          <label>Mobile Number</label>
-          <input type="tel" name="phone" required placeholder="+91 XXXXX XXXXX" />
-        </div>
-
-        <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" name="email" placeholder="you@example.com" />
-        </div>
-
-        <div class="form-group">
-          <label>Interested In</label>
-          <select name="interest">
-            <option value="">Select Property Type</option>
-            <option value="Plots">Plots</option>
-            <option value="Villas">Villas</option>
-            <option value="Weekend Home">Weekend Home</option>
-            <option value="Investment">Investment</option>
-          </select>
-        </div>
-
-        <div class="form-group">
-          <label>Message</label>
-          <textarea name="message" rows="3" placeholder="Your requirement..."></textarea>
-        </div>
-
+        <div class="form-group"><label>Message</label><textarea name="message" rows="3"></textarea></div>
         <button type="submit" class="btn btn-primary btn-full">Request Free Call Back</button>
       </form>
 
@@ -291,7 +285,6 @@
 
 </main>
 
-<!-- FOOTER -->
 <?php include './partials/footer.php'; ?>
 
 <script src="assets/js/script.js"></script>

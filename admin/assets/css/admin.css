@@ -42,9 +42,9 @@
   /* =====================
      RADIUS
   ====================== */
-  --radius-lg: 18px;
-  --radius-md: 12px;
-  --radius-sm: 8px;
+  --radius-lg: 5px;
+  --radius-md: 5px;
+  --radius-sm: 5px;
 }
 
 /* DARK MODE (still colorful, not dead) */
@@ -60,23 +60,36 @@ body.dark {
   --border: #1e293b;
 }
 
+@font-face {
+  font-family: 'Ethnocentric';
+  src: url('../fonts/Ethnocentric-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
 
-/* ===== ADMIN HEADER ===== */
+
+/* =======================================
+   FIXED PREMIUM ADMIN HEADER ALIGNMENT
+======================================= */
+
 .admin-header {
   height: 64px;
   background: #ffffff;
   border-bottom: 1px solid #e5e7eb;
+  padding: 0 24px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  position: sticky;
+  justify-content: space-between;   /* KEY FIX: left and right alignment */
+  position: fixed;
   top: 0;
-  z-index: 100;
+  left: 0;
+  right: 0;
+  z-index: 1000;
 }
 
-/* Left brand */
-.brand {
+/* Left Section */
+.header-left .brand {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -88,49 +101,125 @@ body.dark {
   color: #1f2937;
 }
 
-/* Right section */
+/* Right Section (Admin Area) */
 .header-right {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 18px;
+}
+.brand-text {
+    font-family: 'Ethnocentric', sans-serif;
+    font-size: 24px;
+    color: #00A300;
+    text-transform: uppercase;
+  
 }
 
+
+/* Admin Profile Layout */
 .admin-profile {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  color: #6b7280;
+  gap: 12px;
+  position: relative;
+  padding: 6px 10px;
 }
 
+/* Admin Name */
+.admin-name {
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+  pointer-events: none; /* Name doesn't block avatar clicks */
+}
+
+/* Avatar Button */
 .admin-avatar {
-  width: 34px;
-  height: 34px;
+  width: 38px;
+  height: 38px;
+  background-color: var(--primary);
+  color: white;
   border-radius: 50%;
-  background: #e8f5e9;
-  color: #2e7d32;
-  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid var(--bg-soft);
+  font-weight: 700;
+  font-size: 15px;
+  z-index: 1001;
 }
 
-.logout-btn {
-  padding: 8px 14px;
-  background: #2e7d32;
-  color: #ffffff;
+.admin-avatar:hover {
+  transform: scale(1.08);
+  background-color: var(--primary-hover);
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 120%;     /* Below avatar */
+  right: 0;
+  min-width: 200px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid var(--bg-soft);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+  padding: 8px;
+  z-index: 1500;
+}
+
+.dropdown-menu.active {
+  display: block;
+  animation: fadeIn 0.2s ease-out;
+}
+
+/* Dropdown Item */
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  color: #374151;
   text-decoration: none;
   border-radius: 8px;
-  font-size: 13px;
-  font-weight: 600;
   transition: background 0.2s ease;
 }
 
-.logout-btn:hover {
-  background: #1b5e20;
+.dropdown-item:hover {
+  background: var(--bg-soft);
+  color: var(--primary);
 }
 
-/* Mobile */
+.dropdown-item svg {
+  stroke: #6b7280;
+}
+
+.dropdown-item:hover svg {
+  stroke: var(--primary);
+}
+
+/* Logout styling */
+.logout-link:hover {
+  background: #fff1f2;
+  color: #dc2626;
+}
+
+.logout-link:hover svg {
+  stroke: #dc2626;
+}
+
+/* Fade animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Mobile: Hide brand text only */
 @media (max-width: 768px) {
   .brand-text {
     display: none;
@@ -530,7 +619,7 @@ body.dark .dashboard-table tr:hover {
   color: #fff;
   border: none;
   padding: 14px 26px;
-  border-radius: 12px;
+  border-radius: 5px;
   cursor: pointer;
   font-weight: 700;
 }
@@ -838,44 +927,120 @@ body.dark .dashboard-table tr:hover {
    HERO BANNER (ADMIN)
 ============================ */
 
-.hero-preview-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 16px;
-  margin-bottom: 20px;
+/* ============================================================
+   SIDEBAR – CLEAN PROFESSIONAL UI (NO ICONS)
+============================================================ */
+
+/* Sidebar Container */
+.admin-sidebar {
+  position: fixed;
+  top: 64px; /* header height */
+  left: 0;
+  width: 260px;
+  height: calc(100vh - 64px);
+  background: #0f172a;
+  border-right: 1px solid #1e293b;
+  padding-top: 10px;
+  z-index: 900;
+  transition: width 0.25s ease;
 }
 
-.hero-preview-grid img {
-  width: 100%;
-  height: 160px;
-  object-fit: cover;
-  border-radius: 14px;
-  border: 1px solid var(--border);
+/* Sidebar Navigation */
+.sidebar-nav {
+  padding: 20px 14px;
 }
 
-.upload-box--hero {
-  position: relative;
-  padding: 50px;
-  text-align: center;
-  border: 2px dashed var(--border);
-  background: var(--bg-soft);
-  border-radius: 18px;
+/* Section Labels (MENU / CONTENT / SYSTEM) */
+.sidebar-section {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #64748b;
+  margin: 18px 0 8px;
+  padding-left: 6px;
+  text-transform: uppercase;
 }
 
-.upload-box--hero input[type="file"] {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
+/* Sidebar Links */
+.nav-item {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  margin-bottom: 4px;
+  border-radius: 10px;
+  color: #cbd5f5;
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
-.upload-box--hero p {
-  font-size: 14px;
-  color: var(--text-muted);
+/* Hover */
+.nav-item:hover {
+  background: #1e293b;
 }
 
-.helper-text {
-  font-size: 13px;
-  color: var(--text-light);
-  margin-bottom: 12px;
+/* Active Page */
+.nav-item.active {
+  background: #38bdf8;
+  color: #0f172a;
+  font-weight: 600;
 }
+
+/* Text Inside Links */
+.nav-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =======================
+   COLLAPSED SIDEBAR
+======================= */
+.admin-sidebar.collapsed {
+  width: 80px;
+}
+
+.admin-sidebar.collapsed .nav-text,
+.admin-sidebar.collapsed .sidebar-section {
+  display: none;
+}
+
+.admin-sidebar.collapsed .nav-item {
+  justify-content: center;
+}
+
+.admin-sidebar.collapsed .nav-item:hover {
+  background: #1e293b;
+}
+
+/* Shift Content When Sidebar Collapses */
+.admin-sidebar.collapsed ~ .admin-layout .admin-main,
+.admin-sidebar.collapsed ~ .admin-footer {
+  margin-left: 80px;
+}
+
+/* Normal Content Offset */
+.admin-main {
+  margin-left: 260px;
+  transition: margin-left 0.25s ease;
+}
+
+.admin-footer {
+  margin-left: 260px;
+  transition: margin-left 0.25s ease;
+}
+
+/* =======================
+   MOBILE RESPONSIVE
+======================= */
+@media (max-width: 768px) {
+  .admin-sidebar {
+    width: 220px;
+  }
+  .admin-main,
+  .admin-footer {
+    margin-left: 0 !important;
+  }
+}
+

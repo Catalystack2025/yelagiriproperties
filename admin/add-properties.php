@@ -31,10 +31,10 @@ include __DIR__ . '/includes/sidebar.php';
               <label>Property Type *</label>
               <select name="type" required>
                 <option value="">Select Type</option>
-                <option>Villa</option>
                 <option>Plot</option>
-                <option>Land</option>
-                <option>Apartment</option>
+                <option>Villa</option>
+                <option>Home Stays</option>
+               
               </select>
             </div>
 
