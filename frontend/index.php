@@ -83,30 +83,39 @@ include __DIR__ . '/../admin/includes/db.php';
 
 <main>
 
-<?php
-$hero = $conn->query("SELECT * FROM hero_settings WHERE id = 1")->fetch_assoc();
-$slides = $conn->query("SELECT * FROM hero_slides ORDER BY sort_order ASC, id DESC");
-?>
-
-<!-- HERO SECTION -->
+<!-- ============================
+     STATIC HERO SECTION
+============================ -->
 <section id="hero" class="hero">
 
+  <!-- Slider Wrapper -->
   <div class="hero-slider">
-      <?php if ($slides->num_rows > 0): ?>
-          <?php while($s = $slides->fetch_assoc()): ?>
-              <div class="hero-slide" style="background-image:url('../admin/uploads/hero/<?= $s['image']; ?>');"></div>
-          <?php endwhile; ?>
-      <?php else: ?>
-          <div class="hero-slide active" style="background-image:url('assets/img/default-hero.jpg');"></div>
-      <?php endif; ?>
+
+      <!-- Premium Plots -->
+      <div class="hero-slide active"
+           style="background-image:url('./assets/images/plots.jpg');">
+      </div>
+
+      <!-- Luxury Villas -->
+      <!-- <div class="hero-slide"
+           style="background-image:url('./assets/images/villa.png');">
+      </div> -->
+
+      <!-- Mountain Homestays -->
+      <!-- <div class="hero-slide"
+           style="background-image:url('frontend/assets/images/homestay-premium.jpg');">
+      </div> -->
+
   </div>
 
+  <!-- Gradient Overlay -->
+  <div class="hero-overlay"></div>
+
+  <!-- Slide Content -->
   <div class="container hero-content">
-    <h1><?= htmlspecialchars($hero['title']); ?></h1>
-    <p><?= htmlspecialchars($hero['description']); ?></p>
-
-    <br>
-
+    <h1>Premium Villas, Scenic Plots & Luxury Homestays</h1>
+    <p>Experience peaceful hill-station living with curated properties surrounded by nature and breathtaking views.</p>
+<br>
     <div class="hero-actions">
       <a href="properties.php" class="btn btn-primary">View Properties</a>
       <a href="contact.php" class="btn btn-outline">Book Free Site Visit</a>
@@ -114,32 +123,28 @@ $slides = $conn->query("SELECT * FROM hero_slides ORDER BY sort_order ASC, id DE
   </div>
 
 </section>
-
-<!-- HERO SLIDER JS -->
 <script>
-document.addEventListener("DOMContentLoaded", function() {
+document.addEventListener("DOMContentLoaded", function () {
 
-    let interval = <?= (int)$hero['slide_interval']; ?>;
-    let heroSlides = document.querySelectorAll(".hero-slide");
-    let index = 0;
+  const slides = document.querySelectorAll(".hero-slide");
+  let index = 0;
+  const interval = 5000; // 5 sec
 
-    if (heroSlides.length > 0) {
+  function showSlide(i) {
+    slides.forEach(slide => slide.classList.remove("active"));
+    slides[i].classList.add("active");
+  }
 
-        function showSlide(i) {
-            heroSlides.forEach(s => s.classList.remove("active"));
-            heroSlides[i].classList.add("active");
-        }
+  showSlide(index);
 
-        showSlide(index);
-
-        setInterval(() => {
-            index = (index + 1) % heroSlides.length;
-            showSlide(index);
-        }, interval);
-    }
+  setInterval(() => {
+    index = (index + 1) % slides.length;
+    showSlide(index);
+  }, interval);
 
 });
 </script>
+
 
 <!-- FEATURED PROPERTIES -->
 <?php
@@ -255,7 +260,7 @@ $featured = array_slice($properties, 0, 6);
     <div class="blog-grid" id="blogGrid"></div>
   </section>
 </div>
-
+<br>
 <!-- CTA FORM -->
 <section class="section-padding cta-section">
   <div class="container">

@@ -8,6 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Yelagiri Properties | Premium Villas & Plots in Yelagiri Hills</title>
+<link rel="icon" type="image/png" href="frontend/assets/images/mountain.png?v=2" />
 
   <meta name="description" content="Buy premium villas and legally verified plots in Yelagiri Hills. Trusted real estate experts offering transparent pricing, clear-title properties, and investment-ready land." />
   <meta name="keywords" content="Yelagiri properties, villas in Yelagiri, plots in Yelagiri, land for sale in Yelagiri, hill station real estate" />
