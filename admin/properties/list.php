@@ -70,13 +70,14 @@ if ($result && $result->num_rows > 0) {
               </td>
 
               <td>
-                <a href="add-properties.php?id=<?= $p['id'] ?>" class="link">Edit</a>
+                <a href="add.php?id=<?= $p['id'] ?>" class="link">Edit</a>
                 |
-                <a href="delete-property.php?id=<?= $p['id'] ?>"
-                   class="link danger"
-                   onclick="return confirm('Delete this property?')">
-                  Delete
-                </a>
+                <form action="delete.php" method="POST" style="display:inline" onsubmit="return confirm('Delete this property?')">
+                  <input type="hidden" name="id" value="<?= $p['id'] ?>">
+                  <button type="submit" class="link danger" style="border:none; background:none; padding:0; cursor:pointer;">
+                    Delete
+                  </button>
+                </form>
               </td>
             </tr>
           <?php endforeach; ?>

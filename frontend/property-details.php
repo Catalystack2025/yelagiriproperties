@@ -1,35 +1,65 @@
 <?php
-/**
- * 1. Load shared properties data
- */
-include './data/property-data.php';
+include __DIR__ . '/../admin/includes/db.php';
+include __DIR__ . '/../admin/includes/blueprint-helpers.php';
 
-// 2. Get the ID from URL and ensure it's an integer
+ensureBlueprintTable($conn);
+
 $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-
-// 3. Find property by ID
-$property = null;
-foreach ($properties as $item) {
-    // Use == instead of === to avoid type-mismatch issues (string "1" vs integer 1)
-    if ($item['id'] == $id) {
-        $property = $item;
-        break;
-    }
+if ($id <= 0) {
+    http_response_code(404);
+    echo "<div style='padding:100px 20px; text-align:center; font-family:sans-serif;'>
+            <h2 style='color:#333;'>Property not found</h2>
+            <p style='color:#666;'>Invalid property id.</p>
+            <a href='properties.php' style='color:#2e7d32; font-weight:bold;'>Return to Listings</a>
+          </div>";
+    exit;
 }
 
-// 4. If not found, show error and stop
-if (!$property) { 
+$stmt = $conn->prepare("SELECT * FROM properties WHERE id=? LIMIT 1");
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$propertyRes = $stmt->get_result();
+$property = $propertyRes && $propertyRes->num_rows ? $propertyRes->fetch_assoc() : null;
+
+if (!$property) {
+    http_response_code(404);
     echo "<div style='padding:100px 20px; text-align:center; font-family:sans-serif;'>
             <h2 style='color:#333;'>Property not found</h2>
             <p style='color:#666;'>The property ID you requested ($id) does not exist.</p>
             <a href='properties.php' style='color:#2e7d32; font-weight:bold;'>Return to Listings</a>
-          </div>"; 
-    exit; 
+          </div>";
+    exit;
 }
 
-/**
- * Helper to match icons to your amenity strings
- */
+$images = [];
+$imgRes = $conn->query("SELECT image_path FROM property_images WHERE property_id=$id ORDER BY id ASC");
+if ($imgRes) {
+    while ($row = $imgRes->fetch_assoc()) {
+        $images[] = "../admin/uploads/" . $row['image_path'];
+    }
+}
+if (empty($images)) {
+    $images[] = "./assets/images/no-image.jpg";
+}
+
+$amenities = [];
+$amenRes = $conn->query("
+    SELECT a.name 
+    FROM amenities a 
+    JOIN property_amenities pa ON pa.amenity_id = a.id
+    WHERE pa.property_id = $id
+");
+if ($amenRes) {
+    while ($row = $amenRes->fetch_assoc()) {
+        $amenities[] = $row['name'];
+    }
+}
+
+$blueprint = getBlueprint($conn, $id);
+$blueprintImg = $blueprint && !empty($blueprint['annotated_path'])
+    ? "../admin/uploads/blueprints/" . $blueprint['annotated_path']
+    : null;
+
 function getIcon($name) {
     $name = strtolower($name);
     if (strpos($name, 'security') !== false) return 'fas fa-shield-alt';
@@ -54,56 +84,33 @@ function getIcon($name) {
     <link rel="stylesheet" href="./assets/css/style.css">
     
     <style>
-      
-        /* Layout Padding to account for fixed header */
-        .property-details-section {
-            padding-top: 90px;
-            padding-bottom: 60px;
-            background: var(--bg);
-        }
-
-        /* .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; } */
-        
+        .property-details-section { padding-top: 90px; padding-bottom: 60px; background: var(--bg); }
         .back-link { text-decoration: none; color: var(--primary); font-weight: 700; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 25px; transition: 0.3s; }
         .back-link:hover { transform: translateX(-5px); }
-        
         .layout-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 30px; }
-        
         .gallery-main { width: 100%; aspect-ratio: 16/9; border-radius: 12px; overflow: hidden; background: #ddd; margin-bottom: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
         .gallery-main img { width: 100%; height: 100%; object-fit: cover; transition: opacity 0.3s ease; }
-        
         .thumbs { display: flex; gap: 10px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
         .thumb { flex: 0 0 80px; height: 80px; border-radius: 8px; cursor: pointer; overflow: hidden; border: 2px solid transparent; transition: 0.3s; }
         .thumb.active { border-color: var(--primary); opacity: 1; }
         .thumb:not(.active) { opacity: 0.7; }
         .thumb img { width: 100%; height: 100%; object-fit: cover; }
-        
         .card { background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #eee; margin-bottom: 20px; }
-        
         .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 25px 0; padding: 25px 0; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
         .stat-item { text-align: center; }
         .stat-label { font-size: 11px; color: #888; text-transform: uppercase; display: block; margin-bottom: 5px; letter-spacing: 0.5px; }
         .stat-value { font-weight: 700; font-size: 16px; color: var(--dark); }
-
         .amenity-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 15px; }
         .amenity { background: #f9fbf9; padding: 12px 15px; border-radius: 8px; font-size: 14px; display: flex; align-items: center; gap: 10px; border: 1px solid #edf2ed; }
         .amenity i { color: var(--primary); width: 20px; text-align: center; }
-
+        .blueprint-box { margin-top: 24px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc; box-shadow: 0 10px 30px rgba(0,0,0,0.04); }
+        .blueprint-box img { width: 100%; border-radius: 10px; display: block; }
         .inquiry-form input, .inquiry-form textarea { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 14px; }
         .inquiry-form input:focus, .inquiry-form textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1); }
-        
         .btn-send { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 16px; }
         .btn-send:hover { background: #1b5e20; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46, 125, 50, 0.3); }
-
         .sticky-col { position: sticky; top: 100px; }
-
-        @media (max-width: 991px) {
-            .layout-grid { grid-template-columns: 1fr; }
-            .sticky-col { position: static; }
-        }
-        .property-details-section{
-            padding-top: 90px;
-        }
+        @media (max-width: 991px) { .layout-grid { grid-template-columns: 1fr; } .sticky-col { position: static; } }
     </style>
 </head>
 <body>
@@ -121,11 +128,11 @@ function getIcon($name) {
                 <!-- Left Column: Gallery & Info -->
                 <div class="left-col">
                     <div class="gallery-main">
-                        <img id="mainImg" src="<?php echo htmlspecialchars($property['images'][0]); ?>" alt="<?php echo htmlspecialchars($property['name']); ?>">
+                        <img id="mainImg" src="<?php echo htmlspecialchars($images[0]); ?>" alt="<?php echo htmlspecialchars($property['name']); ?>">
                     </div>
                     
                     <div class="thumbs">
-                        <?php foreach ($property['images'] as $index => $img): ?>
+                        <?php foreach ($images as $index => $img): ?>
                             <div class="thumb <?php echo $index === 0 ? 'active' : ''; ?>" onclick="changeImg(this, '<?php echo htmlspecialchars($img); ?>')">
                                 <img src="<?php echo htmlspecialchars($img); ?>" alt="Thumbnail">
                             </div>
@@ -161,13 +168,23 @@ function getIcon($name) {
 
                         <h3 style="color: var(--dark); margin: 35px 0 15px 0;">Premium Amenities</h3>
                         <div class="amenity-list">
-                            <?php foreach ($property['amenities'] as $amenity): ?>
+                            <?php foreach ($amenities as $amenity): ?>
                                 <div class="amenity">
                                     <i class="<?php echo getIcon($amenity); ?>"></i>
                                     <?php echo htmlspecialchars($amenity); ?>
                                 </div>
                             <?php endforeach; ?>
+                            <?php if (empty($amenities)): ?>
+                                <div class="amenity" style="color:#667085;">No amenities listed.</div>
+                            <?php endif; ?>
                         </div>
+
+                        <?php if ($blueprintImg): ?>
+                            <div class="blueprint-box">
+                                <h3 style="margin-bottom:12px;">Plot Blueprint</h3>
+                                <img src="<?php echo htmlspecialchars($blueprintImg); ?>" alt="Blueprint for <?php echo htmlspecialchars($property['name']); ?>">
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
 
@@ -175,7 +192,8 @@ function getIcon($name) {
                 <div class="right-col">
                     <div class="card sticky-col">
                         <h3 style="margin: 0 0 20px 0; text-align: center; color: var(--dark); font-size: 22px;">Enquire Now</h3>
-                        <form class="inquiry-form" action="send-enquiry.php" method="POST">
+                        <form class="inquiry-form" action="submit-enquiry.php" method="POST">
+                            <input type="hidden" name="property_id" value="<?php echo $id; ?>">
                             <input type="text" name="name" placeholder="Your Full Name" required>
                             <input type="tel" name="phone" placeholder="Mobile Number" required>
                             <input type="email" name="email" placeholder="Email Address (Optional)">
@@ -196,7 +214,6 @@ function getIcon($name) {
     <!-- FOOTER -->
     <?php include 'partials/footer.php'; ?>
 
-    <!-- SCRIPTS -->
     <script>
         function changeImg(el, src) {
             const mainImg = document.getElementById('mainImg');

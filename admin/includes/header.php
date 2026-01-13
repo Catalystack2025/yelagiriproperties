@@ -1,5 +1,11 @@
 <?php
-// header.php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+if (!isset($_SESSION['admin_user'])) {
+    header("Location: /yelagiriproperties/admin/login.php");
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -78,7 +84,16 @@
       });
     }
   });
-</script>
 
-</body>
-</html>
+  // Safety: remove any unexpected full-page overlays that block clicks
+  document.addEventListener('DOMContentLoaded', function() {
+    const blockers = Array.from(document.body.children).filter(el => {
+      const s = getComputedStyle(el);
+      if (s.position !== 'fixed') return false;
+      const w = el.offsetWidth;
+      const h = el.offsetHeight;
+      return w >= window.innerWidth * 0.9 && h >= window.innerHeight * 0.9 && (parseInt(s.zIndex || '0', 10) >= 900);
+    });
+    blockers.forEach(el => { el.style.display = 'none'; });
+  });
+</script>

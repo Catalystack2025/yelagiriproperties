@@ -32,14 +32,18 @@ if (loader && loaderBar) {
     });
 }
 
+const IMAGE_BASE = "../admin/uploads/";
+const BLUEPRINT_BASE = "../admin/uploads/blueprints/";
+const PLACEHOLDER_IMG = "./assets/images/no-image.jpg";
+
 /* ----------------------------------------
    PROPERTY CARD GENERATOR (DB VERSION)
 ---------------------------------------- */
 function generateCard(p) {
-    const image = p.main_image ? `./uploads/${p.main_image}` : "./assets/images/no-image.jpg";
+    const image = p.main_image ? `${IMAGE_BASE}${p.main_image}` : PLACEHOLDER_IMG;
 
     return `
-        <div class="property-card fade-in" onclick="showDetail(${p.id})">
+        <a class="property-card fade-in" href="property-details.php?id=${p.id}">
             <div class="card-image-wrapper">
                 <img src="${image}" alt="${p.name}">
                 <div class="type-tag">${p.type}</div>
@@ -53,9 +57,9 @@ function generateCard(p) {
 
             <div class="card-footer">
                 <span class="card-size">📐 ${p.size}</span>
-                <a href="javascript:void(0)" class="card-link">VIEW DETAILS →</a>
+                <span class="card-link">VIEW DETAILS →</span>
             </div>
-        </div>
+        </a>
     `;
 }
 
@@ -63,7 +67,7 @@ function generateCard(p) {
    APPLY FILTERS
 ---------------------------------------- */
 function applyFilters() {
-    if (!data || !data.properties) return;
+    if (typeof data === 'undefined' || !data || !data.properties) return;
 
     const locFilter = (document.getElementById('locationFilter')?.value || "all").toLowerCase();
     const typeFilter = (document.getElementById('typeFilter')?.value || "all").toLowerCase();
@@ -114,75 +118,19 @@ document.readyState === 'loading'
    SHOW PROPERTY DETAILS (DB Compatible)
 ---------------------------------------- */
 function showDetail(id) {
+    if (typeof data === 'undefined' || !data || !data.properties) return;
     const p = data.properties.find(x => x.id == id);
     if (!p) return;
 
-    const image = p.main_image ? `./uploads/${p.main_image}` : "./assets/images/no-image.jpg";
+    const image = p.main_image ? `${IMAGE_BASE}${p.main_image}` : PLACEHOLDER_IMG;
+    const blueprintHtml = p.blueprint
+        ? `<div class="blueprint-preview">
+                <h3>Plot Blueprint</h3>
+                <img src="${BLUEPRINT_BASE}${p.blueprint}" alt="Blueprint for ${p.name}">
+           </div>`
+        : "";
 
-    document.getElementById('listingPage').classList.add('hidden');
-    document.getElementById('detailPage').classList.remove('hidden');
-
-    window.scrollTo(0, 0);
-
-    document.getElementById('detailContent').innerHTML = `
-        <div class="detail-header-grid">
-            <div class="gallery-column">
-                <div class="gallery-main-frame">
-                    <img id="mainDisplayImg" src="${image}" alt="${p.name}">
-                </div>
-
-                <div class="gallery-thumbs-row">
-                    <div class="gallery-thumb-item active">
-                        <img onclick="updateGallery(this, '${image}')" src="${image}">
-                    </div>
-                </div>
-            </div>
-
-            <div class="sidebar">
-                <div class="content-box" style="border-top: 4px solid var(--primary);">
-                    <h3 class="form-title">Enquire Now</h3>
-
-                    <form onsubmit="event.preventDefault(); successMsg.classList.remove('hidden'); this.style.opacity='0.5';">
-
-                        <div class="form-group"><label>Name</label><input type="text" required class="form-input"></div>
-
-                        <div class="form-group"><label>Phone</label><input type="tel" required class="form-input"></div>
-
-                        <div class="form-group">
-                            <label>Message</label>
-                            <textarea class="form-textarea" rows="3">I'm interested in ${p.name}...</textarea>
-                        </div>
-
-                        <button class="submit-btn">Send Interest</button>
-
-                        <div id="successMsg" class="hidden" style="margin-top:10px; color:var(--primary); font-weight:700;">
-                            ✓ Inquiry sent successfully!
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <div class="content-box">
-            <h1 class="detail-title">${p.name}</h1>
-            <p class="card-location">📍 ${p.location} • <strong>${p.type}</strong></p>
-
-            <div class="stats-grid">
-                <div><label>Total Area</label><p>${p.size}</p></div>
-                <div><label>Facing</label><p>🧭 ${p.facing}</p></div>
-                <div><label>Availability</label><p style="color:var(--primary)">${p.status}</p></div>
-                <div><label>Dimensions</label><p>${p.dimensions}</p></div>
-            </div>
-
-            <h3>About this Property</h3>
-            <p class="desc">${p.description}</p>
-
-            <h3>Key Amenities</h3>
-            <div class="amenity-grid">
-                ${p.amenities.map(a => `<div class="amenity-item">✓ ${a}</div>`).join('')}
-            </div>
-        </div>
-    `;
+    window.location.href = `property-details.php?id=${id}`;
 }
 
 /* ----------------------------------------

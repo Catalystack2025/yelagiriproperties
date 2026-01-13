@@ -230,6 +230,9 @@
         .amenity { background: #f9fbf9; padding: 12px 15px; border-radius: 8px; font-size: 14px; display: flex; align-items: center; gap: 10px; border: 1px solid #edf2ed; }
         .amenity i { color: var(--primary); width: 20px; text-align: center; }
 
+        .blueprint-preview { margin-top: 24px; padding: 16px; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc; box-shadow: 0 10px 30px rgba(0,0,0,0.04); }
+        .blueprint-preview img { width: 100%; border-radius: 10px; display: block; }
+
         .inquiry-form input, .inquiry-form textarea { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; font-size: 14px; }
         .inquiry-form input:focus, .inquiry-form textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1); }
         

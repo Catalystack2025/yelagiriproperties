@@ -1,5 +1,8 @@
 <?php
 include __DIR__ . '/../admin/includes/db.php'; // DB connection
+include __DIR__ . '/../admin/includes/blueprint-helpers.php';
+
+ensureBlueprintTable($conn);
 
 /* ========================
    FETCH ALL PROPERTIES
@@ -28,6 +31,9 @@ while ($row = $res->fetch_assoc()) {
         $amens[] = $a['name'];
     }
     $row['amenities'] = $amens;
+
+    // $bp = getBlueprint($conn, intval($row['id']));
+    // $row['blueprint'] = $bp['annotated_path'] ?? null;
 
     $properties[] = $row;
 

@@ -28,8 +28,8 @@ $currentPage = basename($_SERVER['PHP_SELF']);
       <span class="nav-text">Properties</span>
     </a>
 
-    <a href="<?php echo $baseURL; ?>./blogs/add-blog.php"
-       class="nav-item <?php echo (strpos($_SERVER['PHP_SELF'], './blogs/') !== false) ? 'active' : ''; ?>">
+    <a href="<?php echo $baseURL; ?>blogs/list.php"
+       class="nav-item <?php echo (strpos($_SERVER['PHP_SELF'], '/blogs/') !== false) ? 'active' : ''; ?>">
       <span class="nav-icon"><i class="fas fa-pen-nib"></i></span>
       <span class="nav-text">Blogs</span>
     </a>
@@ -38,6 +38,12 @@ $currentPage = basename($_SERVER['PHP_SELF']);
        class="nav-item <?php echo ($currentPage == 'enquiries.php') ? 'active' : ''; ?>">
       <span class="nav-icon"><i class="fas fa-envelope-open-text"></i></span>
       <span class="nav-text">Enquiries</span>
+    </a>
+
+    <a href="<?php echo $baseURL; ?>my-account.php"
+       class="nav-item <?php echo ($currentPage == 'my-account.php') ? 'active' : ''; ?>">
+      <span class="nav-icon"><i class="fas fa-user-cog"></i></span>
+      <span class="nav-text">My Account</span>
     </a>
 
     <a href="<?php echo $baseURL; ?>settings.php"

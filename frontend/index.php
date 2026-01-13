@@ -142,7 +142,20 @@ document.addEventListener("DOMContentLoaded", function() {
 </script>
 
 <!-- FEATURED PROPERTIES -->
-<?php include './data/property-data.php'; ?>
+<?php
+$properties = [];
+$resProps = $conn->query("SELECT * FROM properties ORDER BY id DESC");
+if ($resProps) {
+    while ($row = $resProps->fetch_assoc()) {
+        $imgRes = $conn->query("SELECT image_path FROM property_images WHERE property_id={$row['id']} ORDER BY id ASC LIMIT 1");
+        $imgRow = $imgRes ? $imgRes->fetch_assoc() : null;
+        $row['main_image'] = $imgRow['image_path'] ?? null;
+        $properties[] = $row;
+    }
+}
+shuffle($properties);
+$featured = array_slice($properties, 0, 6);
+?>
 
 <section class="featured-properties-section">
     <div class="featured-container">
@@ -154,15 +167,9 @@ document.addEventListener("DOMContentLoaded", function() {
 
         <br>
 
-        <?php
-            $featured = $properties;
-            shuffle($featured);
-            $featured = array_slice($featured, 0, 6);
-        ?>
-
         <div class="property-grid">
             <?php foreach ($featured as $p): ?>
-                <?php $img = $p['images'][0]; ?>
+                <?php $img = $p['main_image'] ? "../admin/uploads/" . $p['main_image'] : "./assets/images/no-image.jpg"; ?>
 
                 <div class="property-card">
                     <div class="card-media">

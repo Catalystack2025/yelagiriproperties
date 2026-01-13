@@ -4,6 +4,14 @@ include '../includes/header.php';
 include '../includes/sidebar.php';
 include '../includes/db.php';
 
+$uploadDir = realpath(__DIR__ . '/../admin/uploads/blogs');
+if ($uploadDir === false) {
+    $uploadDir = __DIR__ . '/../admin/uploads/blogs';
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0777, true);
+    }
+}
+
 // Save blog data
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
@@ -19,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($_FILES['image']['name'])) {
         $fileTmp  = $_FILES['image']['tmp_name'];
         $fileName = time() . '-' . basename($_FILES['image']['name']);
-        $uploadPath = "../uploads/blogs/" . $fileName;
+        $uploadPath = $uploadDir . "/" . $fileName;
         move_uploaded_file($fileTmp, $uploadPath);
         $imageName = $fileName;
     }
