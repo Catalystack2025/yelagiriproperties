@@ -2,10 +2,81 @@
    BLOG SECTION
 ===================================================== */
 
+// let allBlogs = [];
+// let visibleBlogs = 4;
+
+// // Load Blogs
+// fetch('./data/content.json')
+//   .then(res => res.json())
+//   .then(data => {
+//     allBlogs = data.blogs || [];
+//     renderBlogGrid();
+//   })
+//   .catch(err => console.error("Blog Load Error:", err));
+
+// function renderBlogGrid() {
+//   const grid = document.getElementById('blogGrid');
+//   const loadMoreBtn = document.getElementById('loadMoreBlogs');
+
+//   if (!grid) return;
+
+//   grid.innerHTML = '';
+
+//   allBlogs.slice(0, visibleBlogs).forEach(blog => {
+//     const card = document.createElement('article');
+//     card.className = 'blog-card';
+
+//     card.innerHTML = `
+//       <img src="${blog.image}" alt="${blog.title}">
+//       <div class="blog-content">
+//         <span class="blog-date">${blog.date}</span>
+//         <h3>${blog.title}</h3>
+//         <p>${blog.excerpt}</p>
+//         <span class="read-more">Read More →</span>
+//       </div>
+//     `;
+
+//     card.addEventListener('click', () => showBlogDetails(blog));
+//     grid.appendChild(card);
+//   });
+
+//   if (loadMoreBtn) {
+//     loadMoreBtn.style.display =
+//       visibleBlogs >= allBlogs.length ? 'none' : 'inline-block';
+
+//     loadMoreBtn.onclick = () => {
+//       visibleBlogs += 4;
+//       renderBlogGrid();
+//     };
+//   }
+// }
+
+// function showBlogDetails(blog) {
+//   const detailSection = document.getElementById('blogDetailSection');
+//   if (!detailSection) return;
+
+//   document.getElementById('blogImage').src = blog.image;
+//   document.getElementById('blogDate').textContent = blog.date;
+//   document.getElementById('blogTitle').textContent = blog.title;
+//   document.getElementById('blogContent').innerHTML = blog.content;
+
+//   detailSection.style.display = 'block';
+//   detailSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+// }
+
+// const backBtn = document.getElementById('backToBlogs');
+// if (backBtn) {
+//   backBtn.addEventListener('click', () => {
+//     document.getElementById('blogDetailSection').style.display = 'none';
+//     document.getElementById('blogListSection').scrollIntoView({
+//       behavior: 'smooth'
+//     });
+//   });
+// }
+
 let allBlogs = [];
 let visibleBlogs = 4;
 
-// Load Blogs
 fetch('./data/content.json')
   .then(res => res.json())
   .then(data => {
@@ -16,8 +87,6 @@ fetch('./data/content.json')
 
 function renderBlogGrid() {
   const grid = document.getElementById('blogGrid');
-  const loadMoreBtn = document.getElementById('loadMoreBlogs');
-
   if (!grid) return;
 
   grid.innerHTML = '';
@@ -36,44 +105,13 @@ function renderBlogGrid() {
       </div>
     `;
 
-    card.addEventListener('click', () => showBlogDetails(blog));
+    card.addEventListener('click', () => {
+      window.location.href = `blog-detail.php?slug=${blog.slug}`;
+    });
+
     grid.appendChild(card);
   });
-
-  if (loadMoreBtn) {
-    loadMoreBtn.style.display =
-      visibleBlogs >= allBlogs.length ? 'none' : 'inline-block';
-
-    loadMoreBtn.onclick = () => {
-      visibleBlogs += 4;
-      renderBlogGrid();
-    };
-  }
 }
-
-function showBlogDetails(blog) {
-  const detailSection = document.getElementById('blogDetailSection');
-  if (!detailSection) return;
-
-  document.getElementById('blogImage').src = blog.image;
-  document.getElementById('blogDate').textContent = blog.date;
-  document.getElementById('blogTitle').textContent = blog.title;
-  document.getElementById('blogContent').innerHTML = blog.content;
-
-  detailSection.style.display = 'block';
-  detailSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-const backBtn = document.getElementById('backToBlogs');
-if (backBtn) {
-  backBtn.addEventListener('click', () => {
-    document.getElementById('blogDetailSection').style.display = 'none';
-    document.getElementById('blogListSection').scrollIntoView({
-      behavior: 'smooth'
-    });
-  });
-}
-
 
 
 /* =====================================================

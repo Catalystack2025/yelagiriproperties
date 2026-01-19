@@ -7,3 +7,5 @@ if (!isset($_SESSION['admin_user'])) {
     header("Location: /yelagiriproperties/admin/login.php");
     exit;
 }
+
+

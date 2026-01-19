@@ -5,30 +5,22 @@
         "slides": [],
         "interval": 4000
     },
-    "blogs": [
-        {
-            "slug": "why-yelagiri-investment",
-            "date": "15 Jan 2025",
-            "title": "Why Yelagiri Is the Perfect Hill Station for Property Investment",
-            "excerpt": "Learn why Yelagiri Hills are gaining popularity among real estate investors.",
-            "image": "https:\/\/images.unsplash.com\/photo-1501183638710-841dd1904471",
-            "content": "<p>Yelagiri is emerging as one of the most promising hill station investment destinations...<\/p>"
-        },
-        {
-            "slug": "villas-vs-plots",
-            "date": "20 Jan 2025",
-            "title": "Villas vs Plots: What Should You Choose?",
-            "excerpt": "A complete guide to choosing the right property investment.",
-            "image": "https:\/\/images.unsplash.com\/photo-1494526585095-c41746248156",
-            "content": "<p>When investing in Yelagiri, buyers often compare villas and plots...<\/p>"
-        },
-        {
-            "slug": "villas-vs-plots",
-            "date": "20 Jan 2025",
-            "title": "Villas vs Plots: What Should You Choose?",
-            "excerpt": "A complete guide to choosing the right property investment.",
-            "image": "https:\/\/images.unsplash.com\/photo-1494526585095-c41746248156",
-            "content": "<p>When investing in Yelagiri, buyers often compare villas and plots...<\/p>"
-        }
-    ]
+  "blogs": [
+    {
+      "slug": "why-yelagiri-investment",
+      "date": "15 Jan 2025",
+      "title": "Why Yelagiri Is the Perfect Hill Station for Property Investment",
+      "excerpt": "Learn why Yelagiri Hills are gaining popularity among real estate investors.",
+      "image": "https://images.unsplash.com/photo-1501183638710-841dd1904471",
+      "content": "<p>Yelagiri is emerging as one of the most promising hill station investment destinations in Tamil Nadu. With increasing demand for second homes and eco-friendly living, property values are steadily rising.</p><p>The region offers excellent connectivity, pleasant climate, and long-term appreciation, making it ideal for investors.</p>"
+    },
+    {
+      "slug": "villas-vs-plots",
+      "date": "20 Jan 2025",
+      "title": "Villas vs Plots: What Should You Choose?",
+      "excerpt": "A complete guide to choosing the right property investment.",
+      "image": "https://images.unsplash.com/photo-1494526585095-c41746248156",
+      "content": "<p>When investing in Yelagiri, buyers often compare villas and plots. Villas offer convenience and ready-to-move comfort, while plots provide flexibility and long-term growth.</p><p>Your choice should depend on budget, purpose, and investment horizon.</p>"
+    }
+  ]
 }

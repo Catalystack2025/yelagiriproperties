@@ -1,86 +1,114 @@
 <?php
-// Blog Page
+// Frontend Blog Listing Page
+require_once __DIR__ . '/../admin/includes/db.php';
+
+$sql = "
+  SELECT slug, title, excerpt, image, published_date
+  FROM blogs
+  WHERE status = 1
+  ORDER BY published_date DESC
+";
+$result = $conn->query($sql);
 ?>
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<?php require_once __DIR__ . '/partials/header.php'; ?>
 
-  <title id="pageTitle">Blog | Yelagiri Properties</title>
-  <meta name="description" id="pageDesc" content="Latest blogs from Yelagiri Properties">
+<main class="blog-page">
+  <div class="blog-container">
 
-  <link rel="stylesheet" href="assets/css/style.css">
-
-  <style>
-    .footer-logo {
-      font-family: 'Ethnocentric', sans-serif;
-      letter-spacing: 1.5px;
-      font-size: 20px;
-      color: #ffffff;
-      text-transform: uppercase;
-    }
-
-    .header-logo {
-      font-family: 'Ethnocentric', sans-serif;
-      letter-spacing: 1px;
-      line-height: 1;
-      font-size: 28px;
-      color: #00A300;
-      text-transform: uppercase;
-    }
-  </style>
-
-</head>
-
-
-<body>
-
-  <div id="loader">
-    <div class="loader-content">
-      <div class="loader-text">YELAGIRI PROPERTIES</div>
-      <div class="loader-bar-container">
-        <div class="loader-bar" id="loaderBar"></div>
-      </div>
-      <p style="color: rgba(255,255,255,0.4); font-size: 10px; letter-spacing: 4px; margin-top: 15px; font-family: sans-serif;">
-        PROPERTIES
-      </p>
+    <div class="blog-header">
+      <h1>Latest Blogs</h1>
+      <p>Expert insights and property updates from Yelagiri Properties</p>
     </div>
+
+    <div class="blog-grid">
+
+      <?php if ($result && $result->num_rows > 0): ?>
+        <?php while ($blog = $result->fetch_assoc()): ?>
+
+          <div class="blog-card"
+               onclick="window.location.href='blog-detail.php?slug=<?= htmlspecialchars($blog['slug']) ?>'">
+
+            <div class="blog-image">
+              <img src="../admin/<?= htmlspecialchars($blog['image']) ?>"
+                   alt="<?= htmlspecialchars($blog['title']) ?>"
+                   loading="lazy">
+            </div>
+
+            <div class="blog-body">
+              <span class="blog-date">
+                <?= date('d M Y', strtotime($blog['published_date'])) ?>
+              </span>
+
+              <h3><?= htmlspecialchars($blog['title']) ?></h3>
+
+              <p><?= htmlspecialchars($blog['excerpt']) ?></p>
+
+              <span class="blog-link">Read More →</span>
+            </div>
+
+          </div>
+
+        <?php endwhile; ?>
+      <?php else: ?>
+        <p>No blogs available.</p>
+      <?php endif; ?>
+
+    </div>
+
   </div>
+</main>
 
-  <!-- HEADER -->
-  <?php include 'partials/header.php'; ?>
+<?php require_once __DIR__ . '/partials/footer.php'; ?>
 
-  <br>
+<style>
+.blog-page {
+  padding: 80px 0;
+  background: #f7f8fa;
+}
 
-  <main class="section-padding">
-    <div class="container">
+.blog-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 0 20px;
+}
 
-      <!-- BLOG LIST -->
-      <section id="blogListSection">
-        <div class="section-title">
-          <h1>Latest Blogs</h1>
-          <p>Expert insights, guides, and updates from Yelagiri Properties.</p>
-        </div>
+.blog-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
 
-        <div class="blog-grid" id="blogGrid"></div>
+.blog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 30px;
+}
 
-      </section>
+.blog-card {
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  cursor: pointer;
+}
 
-    </div>
-  </main>
+.blog-image {
+  height: 220px;
+  overflow: hidden;
+}
 
-  <!-- FOOTER -->
-  <?php include 'partials/footer.php'; ?>
+.blog-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
+.blog-body {
+  padding: 22px;
+}
 
-  <!-- BLOG DATA -->
-  <script src="assets/js/content.js"></script>
-
-  <!-- COMMON JS -->
-  <script src="assets/js/script.js"></script>
-
-</body>
-
-</html>
+.blog-link {
+  color: #00a300;
+  font-weight: 600;
+}
+</style>
