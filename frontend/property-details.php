@@ -96,8 +96,8 @@ function getIcon($name) {
         .thumb:not(.active) { opacity: 0.7; }
         .thumb img { width: 100%; height: 100%; object-fit: cover; }
         .card { background: #fff; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); border: 1px solid #eee; margin-bottom: 20px; }
-        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 25px 0; padding: 25px 0; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
-        .stat-item { text-align: center; }
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 25px 0; padding: 25px 0; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
+       
         .stat-label { font-size: 11px; color: #888; text-transform: uppercase; display: block; margin-bottom: 5px; letter-spacing: 0.5px; }
         .stat-value { font-weight: 700; font-size: 16px; color: var(--dark); }
         .amenity-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; margin-top: 15px; }
@@ -110,6 +110,30 @@ function getIcon($name) {
         .btn-send { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.3s; font-size: 16px; }
         .btn-send:hover { background: #1b5e20; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(46, 125, 50, 0.3); }
         .sticky-col { position: sticky; top: 100px; }
+        .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    background: #f9f9f9;
+    border-radius: 10px;
+}
+
+.stat-icon {
+    font-size: 22px;
+    color: #2c7be5;
+    min-width: 28px;
+    text-align: center;
+}
+
+
+
         @media (max-width: 991px) { .layout-grid { grid-template-columns: 1fr; } .sticky-col { position: static; } }
     </style>
 </head>
@@ -145,21 +169,40 @@ function getIcon($name) {
                             <i class="fas fa-map-marker-alt" style="color: #ef4444; margin-right: 5px;"></i> 
                             <?php echo htmlspecialchars($property['location']); ?>
                         </p>
+<div class="stats">
+    <div class="stat-item">
+        <span class="stat-icon"><i class="fa-solid fa-ruler-combined"></i></span>
+        <div>
+            <span class="stat-label">Total Area</span>
+            <span class="stat-value"><?php echo htmlspecialchars($property['size']); ?> SQFT</span>
+        </div>
+    </div>
 
-                        <div class="stats">
-                            <div class="stat-item">
-                                <span class="stat-label">Total Area</span>
-                                <span class="stat-value"><?php echo htmlspecialchars($property['size']); ?></span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Facing</span>
-                                <span class="stat-value"><?php echo htmlspecialchars($property['facing']); ?></span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Property Type</span>
-                                <span class="stat-value"><?php echo htmlspecialchars($property['type']); ?></span>
-                            </div>
-                        </div>
+    <div class="stat-item">
+        <span class="stat-icon"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></span>
+        <div>
+            <span class="stat-label">Dimensions</span>
+            <span class="stat-value"><?php echo htmlspecialchars($property['dimensions']); ?></span>
+        </div>
+    </div>
+
+    <div class="stat-item">
+        <span class="stat-icon"><i class="fa-solid fa-compass"></i></span>
+        <div>
+            <span class="stat-label">Facing</span>
+            <span class="stat-value"><?php echo htmlspecialchars($property['facing']); ?></span>
+        </div>
+    </div>
+
+    <div class="stat-item">
+        <span class="stat-icon"><i class="fa-solid fa-house"></i></span>
+        <div>
+            <span class="stat-label">Property Type</span>
+            <span class="stat-value"><?php echo htmlspecialchars($property['type']); ?></span>
+        </div>
+    </div>
+</div>
+
 
                         <h3 style="color: var(--dark); margin: 30px 0 15px 0;">Property Description</h3>
                         <p style="line-height: 1.8; color: #555; font-size: 15px;">
