@@ -24,10 +24,10 @@
       <div class="footer-col">
         <h4>Contact</h4>
         <ul class="footer-links">
-          <li><a href="tel:+919999999999">📞 +91 99999 99999</a></li>
-          <li><a href="mailto:info@yelagiriproperties.com">✉️ info@yelagiriproperties.com</a></li>
+          <li><a href="tel:+918925833003">📞 +91 8925833003 </a></li>
+          <li><a href="mailto:info@yelagiriproperties.com">✉️ contact@yelagiriproperties.com</a></li>
           <li><a href="https://maps.google.com" target="_blank" rel="noopener">📍 Yelagiri / Tirupattur, Tamil Nadu</a></li>
-          <li><a href="https://wa.me/919999999999" target="_blank" rel="noopener">💬 WhatsApp Us</a></li>
+          <li><a href="https://wa.me/8925833003" target="_blank" rel="noopener">💬 WhatsApp Us</a></li>
         </ul>
       </div>
 
