@@ -201,7 +201,7 @@ $featured = array_slice($properties, 0, 6);
                         <div class="specs-grid">
                             <div class="spec-item">
                                 <span class="spec-label">Area</span>
-                                <span class="spec-val"><?= htmlspecialchars($p['size']); ?></span>
+                                <span class="spec-val"><?= htmlspecialchars($p['size']); ?> SQFT</span>
                             </div>
                             <div class="spec-item">
                                 <span class="spec-label">Facing</span>

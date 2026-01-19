@@ -69,6 +69,23 @@ function getIcon($name) {
     if (strpos($name, 'park') !== false || strpos($name, 'garden') !== false) return 'fas fa-leaf';
     return 'fas fa-check-circle';
 }
+$documents = [];
+$docRes = $conn->query("
+    SELECT document_title, document_path
+    FROM property_documents
+    WHERE property_id = $id
+    ORDER BY id DESC
+");
+
+if ($docRes) {
+    while ($row = $docRes->fetch_assoc()) {
+        $documents[] = [
+            'title' => $row['document_title'],
+            'path'  => "../admin/uploads/documents/" . $row['document_path']
+        ];
+    }
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -130,6 +147,28 @@ function getIcon($name) {
     color: #2c7be5;
     min-width: 28px;
     text-align: center;
+}
+.tab-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    background: #f3f4f6;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.tab-btn.active {
+    background: #fff;
+    color: var(--primary);
+    border-bottom: 2px solid var(--primary);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
 }
 
 
@@ -208,7 +247,7 @@ function getIcon($name) {
                         <p style="line-height: 1.8; color: #555; font-size: 15px;">
                             <?php echo nl2br(htmlspecialchars($property['description'])); ?>
                         </p>
-
+<?php if ($amenities): ?>
                         <h3 style="color: var(--dark); margin: 35px 0 15px 0;">Premium Amenities</h3>
                         <div class="amenity-list">
                             <?php foreach ($amenities as $amenity): ?>
@@ -217,17 +256,89 @@ function getIcon($name) {
                                     <?php echo htmlspecialchars($amenity); ?>
                                 </div>
                             <?php endforeach; ?>
-                            <?php if (empty($amenities)): ?>
-                                <div class="amenity" style="color:#667085;">No amenities listed.</div>
-                            <?php endif; ?>
+                            
+                                
+                           
                         </div>
+                         <?php endif; ?>
 
-                        <?php if ($blueprintImg): ?>
-                            <div class="blueprint-box">
-                                <h3 style="margin-bottom:12px;">Plot Blueprint</h3>
-                                <img src="<?php echo htmlspecialchars($blueprintImg); ?>" alt="Blueprint for <?php echo htmlspecialchars($property['name']); ?>">
-                            </div>
-                        <?php endif; ?>
+                    <div>
+                        <?php if ($blueprintImg || !empty($documents)): ?>
+
+<div style="display:flex; gap:12px; margin-top:30px;">
+    <?php if ($blueprintImg): ?>
+        <button type="button" class="tab-btn active" data-tab="tab-blueprint">
+            Blueprint
+        </button>
+    <?php endif; ?>
+
+    <?php if (!empty($documents)): ?>
+        <button type="button"
+                class="tab-btn <?= !$blueprintImg ? 'active' : '' ?>"
+                data-tab="tab-documents">
+            Documents
+        </button>
+    <?php endif; ?>
+</div>
+
+<div class="blueprint-box">
+
+    <?php if ($blueprintImg): ?>
+        <div id="tab-blueprint" class="tab-content active">
+            <img src="<?= htmlspecialchars($blueprintImg) ?>"
+                 style="width:100%; border-radius:10px;">
+        </div>
+    <?php endif; ?>
+
+    <div id="tab-documents"
+     class="tab-content <?= !$blueprintImg ? 'active' : '' ?>">
+
+    <div style="max-height:520px; overflow-y:auto; padding-right:8px;">
+
+        <?php if (!empty($documents)): ?>
+
+            <?php foreach ($documents as $doc): ?>
+                <p style="font-weight:700; margin:12px 0;">
+                    <?= htmlspecialchars($doc['title']) ?>
+                </p>
+
+                <iframe
+                    src="<?= htmlspecialchars($doc['path']) ?>"
+                    style="width:100%; height:420px; border:1px solid #e5e7eb; border-radius:8px; margin-bottom:20px;">
+                </iframe>
+            <?php endforeach; ?>
+
+        <?php else: ?>
+
+            <!-- EMPTY STATE -->
+            <div style="
+                padding:40px;
+                text-align:center;
+                color:#6b7280;
+                font-weight:600;
+                border:2px dashed #e5e7eb;
+                border-radius:12px;
+                background:#f9fafb;
+            ">
+                <i class="fas fa-file-pdf" style="font-size:34px; margin-bottom:12px; color:#9ca3af;"></i>
+                <p>Documents not uploaded yet</p>
+            </div>
+
+        <?php endif; ?>
+
+    </div>
+</div>
+
+
+</div>
+
+<?php endif; ?>
+
+
+
+
+</div>
+
                     </div>
                 </div>
 
@@ -271,6 +382,18 @@ function getIcon($name) {
             }, 200);
         }
     </script>
+<script>
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+    });
+});
+</script>
+
 
     <!-- Project Scripts -->
     <script src="assets/js/content.js"></script>

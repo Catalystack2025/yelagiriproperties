@@ -56,7 +56,7 @@ function generateCard(p) {
             </div>
 
             <div class="card-footer">
-                <span class="card-size">📐 ${p.size}</span>
+                <span class="card-size">📐 ${p.size} SQFT</span>
                 <span class="card-link">VIEW DETAILS →</span>
             </div>
         </a>
@@ -166,3 +166,4 @@ function nextSlide() { currentIndex = (currentIndex + 1) % slides.length; showSl
 function prevSlide() { currentIndex = (currentIndex - 1 + slides.length) % slides.length; showSlide(currentIndex); }
 
 setInterval(nextSlide, 12000);
+

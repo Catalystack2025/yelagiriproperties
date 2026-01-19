@@ -7,7 +7,7 @@ include __DIR__ . '/../includes/blueprint-helpers.php';
 ensureBlueprintTable($conn);
 
 /* ============================================================
-   LOAD ALL AMENITIES
+   LOAD AMENITIES
 ============================================================ */
 $amenities = [];
 $resA = $conn->query("SELECT * FROM amenities ORDER BY name ASC");
@@ -16,221 +16,198 @@ while ($row = $resA->fetch_assoc()) {
 }
 
 /* ============================================================
-   CHECK EDIT MODE
+   EDIT MODE
 ============================================================ */
 $edit = false;
 $property = [];
 $selectedAmenities = [];
-$blueprint = null;
 $propertyImages = [];
+$blueprint = null;
 $id = 0;
 
-if (isset($_GET['id'])) {
+if (isset($_GET['id']) && intval($_GET['id']) > 0) {
     $edit = true;
     $id = intval($_GET['id']);
 
-    $res = $conn->query("SELECT * FROM properties WHERE id=$id LIMIT 1");
-    $property = $res->fetch_assoc();
+    $property = $conn->query("SELECT * FROM properties WHERE id=$id")->fetch_assoc();
 
     $aRes = $conn->query("SELECT amenity_id FROM property_amenities WHERE property_id=$id");
-    while ($row = $aRes->fetch_assoc()) {
-        $selectedAmenities[] = $row['amenity_id'];
+    while ($r = $aRes->fetch_assoc()) {
+        $selectedAmenities[] = $r['amenity_id'];
     }
 
-    $imgRes = $conn->query("SELECT * FROM property_images WHERE property_id=$id ORDER BY id ASC");
-    while ($row = $imgRes->fetch_assoc()) {
-        $propertyImages[] = $row['image_path'];
+    $imgRes = $conn->query("SELECT image_path FROM property_images WHERE property_id=$id");
+    while ($r = $imgRes->fetch_assoc()) {
+        $propertyImages[] = $r['image_path'];
     }
 
     $blueprint = getBlueprint($conn, $id);
 }
 
 /* ============================================================
-   FORM SUBMIT
+   FORM SUBMIT — SINGLE SAFE FLOW
 ============================================================ */
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'])) {
 
-    $name        = trim($_POST['name'] ?? '');
-    $type        = trim($_POST['type'] ?? '');
-    $location    = trim($_POST['location'] ?? '');
-    $size        = trim($_POST['size'] ?? '');
-    $dimensions  = trim($_POST['dimensions'] ?? '');
-    $facing      = trim($_POST['facing'] ?? '');
-    $status      = trim($_POST['status'] ?? 'Available');
-    $description = trim($_POST['description'] ?? '');
+    /* ---------- BASIC FIELDS ---------- */
+    $name        = trim($_POST['name']);
+    $type        = trim($_POST['type']);
+    $location    = trim($_POST['location']);
+    $size        = trim($_POST['size']);
+    $dimensions  = trim($_POST['dimensions']);
+    $facing      = trim($_POST['facing']);
+    $status      = trim($_POST['status']);
+    $description = trim($_POST['description']);
     $selected    = $_POST['amenities'] ?? [];
     $blueprintData = $_POST['blueprint_data'] ?? '';
 
-    /* ---------------------------------------------
-       UPDATE PROPERTY
-    ----------------------------------------------*/
+    /* ========================================================
+       SAVE PROPERTY (ID GUARANTEED)
+    ======================================================== */
     if ($edit) {
-
         $stmt = $conn->prepare("
             UPDATE properties SET
-                name=?,
-                type=?,
-                location=?,
-                size=?,
-                dimensions=?,
-                facing=?,
-                status=?,
-                description=?
+                name=?, type=?, location=?, size=?, dimensions=?, facing=?, status=?, description=?
             WHERE id=?
         ");
-        $stmt->bind_param("ssssssssi", $name, $type, $location, $size, $dimensions, $facing, $status, $description, $id);
+        $stmt->bind_param(
+            "ssssssssi",
+            $name,$type,$location,$size,$dimensions,$facing,$status,$description,$id
+        );
         $stmt->execute();
+        $stmt->close();
 
         $conn->query("DELETE FROM property_amenities WHERE property_id=$id");
 
     } else {
-
-        /* ---------------------------------------------
-           INSERT NEW PROPERTY
-        ----------------------------------------------*/
         $stmt = $conn->prepare("
-            INSERT INTO properties (name, type, location, size, dimensions, facing, status, description)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO properties
+            (name,type,location,size,dimensions,facing,status,description)
+            VALUES (?,?,?,?,?,?,?,?)
         ");
-
-        $stmt->bind_param("ssssssss", $name, $type, $location, $size, $dimensions, $facing, $status, $description);
+        $stmt->bind_param(
+            "ssssssss",
+            $name,$type,$location,$size,$dimensions,$facing,$status,$description
+        );
         $stmt->execute();
-
-        $id = $stmt->insert_id;
+        $id = $stmt->insert_id; // 🔥 CRITICAL
+        $stmt->close();
     }
 
-    /* ---------------------------------------------
-       INSERT AMENITIES FOR THE PROPERTY
-    ----------------------------------------------*/
+    /* ========================================================
+       AMENITIES
+    ======================================================== */
     if (!empty($selected)) {
-        $amenityStmt = $conn->prepare("
+        $stmt = $conn->prepare("
             INSERT INTO property_amenities (property_id, amenity_id)
-            VALUES (?, ?)
+            VALUES (?,?)
         ");
-
-        foreach ($selected as $a) {
-            $amenityId = intval($a);
-            $amenityStmt->bind_param("ii", $id, $amenityId);
-            $amenityStmt->execute();
+        foreach ($selected as $aid) {
+            $aid = intval($aid);
+            $stmt->bind_param("ii", $id, $aid);
+            $stmt->execute();
         }
-
-        $amenityStmt->close();
+        $stmt->close();
     }
 
-    /* ============================================================
-       MULTIPLE IMAGE UPLOAD (FIXED & READY)
-    ============================================================ */
-
-    $uploadDir = realpath(__DIR__ . '/../uploads');
-
-    if ($uploadDir === false) {
-        $uploadDir = __DIR__ . '/../uploads';
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
-        }
-    }
+    /* ========================================================
+       IMAGE UPLOAD
+    ======================================================== */
+    $imgDir = __DIR__ . '/../uploads';
+    if (!is_dir($imgDir)) mkdir($imgDir, 0777, true);
 
     if (!empty($_FILES['images']['name'][0])) {
-
-        $imgStmt = $conn->prepare("
+        $stmt = $conn->prepare("
             INSERT INTO property_images (property_id, image_path)
-            VALUES (?, ?)
+            VALUES (?,?)
         ");
+        foreach ($_FILES['images']['name'] as $i => $file) {
+            $tmp = $_FILES['images']['tmp_name'][$i];
+            if (!$tmp) continue;
 
-        foreach ($_FILES['images']['name'] as $index => $file) {
-
-            $tmp = $_FILES['images']['tmp_name'][$index];
-
-            if ($tmp == "" || !is_uploaded_file($tmp)) {
-                continue;
-            }
-
-            $clean = preg_replace('/[^A-Za-z0-9.\-_]/', '_', $file);
-            $newName = time() . "_" . rand(1000,9999) . "_" . $clean;
-            $path = $uploadDir . "/" . $newName;
-
-            if (move_uploaded_file($tmp, $path)) {
-                $imgStmt->bind_param("is", $id, $newName);
-                $imgStmt->execute();
+            $clean = time().'_'.preg_replace('/[^A-Za-z0-9.\-_]/','_',$file);
+            if (move_uploaded_file($tmp, "$imgDir/$clean")) {
+                $stmt->bind_param("is", $id, $clean);
+                $stmt->execute();
             }
         }
-
-        $imgStmt->close();
+        $stmt->close();
     }
 
-    /* ============================================================
-       BLUEPRINT HANDLING (save annotated copy)
-    ============================================================ */
-    $blueprintDir = realpath(__DIR__ . '/../uploads/blueprints');
+    /* ========================================================
+       DOCUMENT UPLOAD (PDF ONLY)
+    ======================================================== */
+    $docDir = __DIR__ . '/../uploads/documents';
+    if (!is_dir($docDir)) mkdir($docDir, 0777, true);
 
-    if ($blueprintDir === false) {
-        $blueprintDir = __DIR__ . '/../uploads/blueprints';
-        if (!is_dir($blueprintDir)) {
-            mkdir($blueprintDir, 0777, true);
-        }
-    }
+    if (!empty($_FILES['documents']['name'][0])) {
+        $stmt = $conn->prepare("
+            INSERT INTO property_documents
+            (property_id, document_title, document_path)
+            VALUES (?,?,?)
+        ");
+        foreach ($_FILES['documents']['name'] as $i => $file) {
+            $tmp = $_FILES['documents']['tmp_name'][$i];
+            if (!$tmp) continue;
+            if (strtolower(pathinfo($file, PATHINFO_EXTENSION)) !== 'pdf') continue;
 
-    $previousOriginal = $blueprint['original_path'] ?? null;
-    $previousAnnotated = $blueprint['annotated_path'] ?? null;
-
-    $blueprintOriginal = $previousOriginal;
-    $blueprintAnnotated = $previousAnnotated;
-
-    if (!empty($_FILES['blueprint_image']['tmp_name']) && is_uploaded_file($_FILES['blueprint_image']['tmp_name'])) {
-        $clean = preg_replace('/[^A-Za-z0-9.\-_]/', '_', $_FILES['blueprint_image']['name']);
-        $originalName = time() . "_" . rand(1000,9999) . "_" . $clean;
-        $target = $blueprintDir . "/" . $originalName;
-
-        if (move_uploaded_file($_FILES['blueprint_image']['tmp_name'], $target)) {
-            if (!empty($previousOriginal) && $previousOriginal !== $originalName) {
-                $old = $blueprintDir . "/" . $previousOriginal;
-                if (is_file($old)) {
-                    @unlink($old);
-                }
+            $clean = time().'_'.preg_replace('/[^A-Za-z0-9.\-_]/','_',$file);
+            if (move_uploaded_file($tmp, "$docDir/$clean")) {
+                $title = pathinfo($file, PATHINFO_FILENAME);
+                $stmt->bind_param("iss", $id, $title, $clean);
+                $stmt->execute();
             }
-            $blueprintOriginal = $originalName;
+        }
+        $stmt->close();
+    }
+
+    /* ========================================================
+       BLUEPRINT (IMAGE + CANVAS)
+    ======================================================== */
+    $bpDir = __DIR__ . '/../uploads/blueprints';
+    if (!is_dir($bpDir)) mkdir($bpDir, 0777, true);
+
+    $prev = getBlueprint($conn, $id);
+    $bpOriginal  = $prev['original_path'] ?? null;
+    $bpAnnotated = $prev['annotated_path'] ?? null;
+
+    if (!empty($_FILES['blueprint_image']['tmp_name'])) {
+        $clean = time().'_'.preg_replace('/[^A-Za-z0-9.\-_]/','_',$_FILES['blueprint_image']['name']);
+        if (move_uploaded_file($_FILES['blueprint_image']['tmp_name'], "$bpDir/$clean")) {
+            $bpOriginal = $clean;
         }
     }
 
     if (!empty($blueprintData)) {
         $parts = explode(',', $blueprintData, 2);
-        $payload = count($parts) === 2 ? $parts[1] : $parts[0];
-        $decoded = base64_decode($payload);
-
-        if ($decoded !== false) {
-            $annotatedName = "bp_" . time() . "_" . rand(1000,9999) . ".png";
-            $annotatedPath = $blueprintDir . "/" . $annotatedName;
-
-            if (file_put_contents($annotatedPath, $decoded) !== false) {
-                if (!empty($previousAnnotated) && $previousAnnotated !== $annotatedName) {
-                    $old = $blueprintDir . "/" . $previousAnnotated;
-                    if (is_file($old)) {
-                        @unlink($old);
-                    }
-                }
-
-                $blueprintAnnotated = $annotatedName;
-            }
+        $decoded = base64_decode($parts[1] ?? '');
+        if ($decoded) {
+            $annot = 'bp_'.time().'_'.rand(1000,9999).'.png';
+            file_put_contents("$bpDir/$annot", $decoded);
+            $bpAnnotated = $annot;
         }
     }
 
-    if ($blueprintAnnotated || $blueprintOriginal) {
-        $bpStmt = $conn->prepare("
-            INSERT INTO property_blueprints (property_id, original_path, annotated_path)
-            VALUES (?, ?, ?)
+    if ($bpOriginal || $bpAnnotated) {
+        $stmt = $conn->prepare("
+            INSERT INTO property_blueprints
+            (property_id, original_path, annotated_path)
+            VALUES (?,?,?)
             ON DUPLICATE KEY UPDATE
-                original_path = VALUES(original_path),
-                annotated_path = VALUES(annotated_path)
+                original_path=VALUES(original_path),
+                annotated_path=VALUES(annotated_path)
         ");
-        $bpStmt->bind_param("iss", $id, $blueprintOriginal, $blueprintAnnotated);
-        $bpStmt->execute();
-        $bpStmt->close();
+        $stmt->bind_param("iss", $id, $bpOriginal, $bpAnnotated);
+        $stmt->execute();
+        $stmt->close();
     }
 
     header("Location: list.php");
     exit;
 }
 ?>
+
+
 
 <!-- ============================================================
      PAGE UI
@@ -356,6 +333,89 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
           <input type="hidden" name="blueprint_data" id="blueprintData">
         </section>
+
+        <!-- PROPERTY DOCUMENTS (PDF ONLY) -->
+<section class="form-card">
+  <h3>Property Documents</h3>
+  <p class="text-muted">Upload and manage property-related PDF files.</p>
+
+  <!-- Upload PDF -->
+  <div class="upload-box">
+    <input
+      type="file"
+      name="documents[]"
+      accept="application/pdf"
+      multiple
+    >
+    <p>Only PDF files are allowed</p>
+  </div>
+
+  <!-- Existing PDFs -->
+  <?php if ($edit): ?>
+    <?php
+      $documents = [];
+      $docRes = $conn->query("
+        SELECT id, document_title, document_path
+        FROM property_documents
+        WHERE property_id = $id
+        ORDER BY id DESC
+      ");
+      while ($row = $docRes->fetch_assoc()) {
+          $documents[] = $row;
+      }
+    ?>
+
+    <?php if (!empty($documents)): ?>
+      <div style="margin-top:15px;">
+        <p><strong>Uploaded PDFs:</strong></p>
+
+        <?php foreach ($documents as $doc): ?>
+          <div style="border:1px solid #e5e7eb; border-radius:8px; padding:12px; margin-bottom:14px;">
+
+            <!-- Rename -->
+            <form method="post" style="display:flex; gap:8px; margin-bottom:10px;">
+              <input type="hidden" name="rename_pdf" value="<?= $doc['id']; ?>">
+              <input
+                type="text"
+                name="document_title"
+                value="<?= htmlspecialchars($doc['document_title']); ?>"
+                style="flex:1; padding:8px; border:1px solid #d1d5db; border-radius:6px;"
+              >
+              <button type="submit" class="btn-outline">Save</button>
+            </form>
+
+            <!-- Inline PDF Preview -->
+            <iframe
+              src="../uploads/documents/<?= htmlspecialchars($doc['document_path']); ?>"
+              style="width:100%; height:420px; border:1px solid #e5e7eb; border-radius:6px; margin-bottom:10px;"
+            ></iframe>
+
+            <!-- Actions -->
+            <div style="display:flex; gap:10px;">
+              <a
+                href="../uploads/documents/<?= htmlspecialchars($doc['document_path']); ?>"
+                target="_blank"
+                class="btn-outline"
+              >
+                Open Full
+              </a>
+
+              <form method="post" onsubmit="return confirm('Delete this PDF?');">
+                <input type="hidden" name="delete_pdf" value="<?= $doc['id']; ?>">
+                <button type="submit" class="btn-outline" style="color:#dc2626;">
+                  Delete
+                </button>
+              </form>
+            </div>
+
+          </div>
+        <?php endforeach; ?>
+      </div>
+    <?php endif; ?>
+  <?php endif; ?>
+
+</section>
+
 
         <!-- DESCRIPTION -->
         <section class="form-card">
