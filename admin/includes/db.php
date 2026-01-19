@@ -1,8 +1,8 @@
 <?php
 $host = "localhost";
-$user = "root";
-$pass = "";
-$db   = "yelagiri_properties";
+$user = "u847031000_yelagiri";
+$pass = "Yelagiri@2026";
+$db   = "u847031000_yelagiri_prop";
 
 $conn = new mysqli($host, $user, $pass, $db);
 
