@@ -242,7 +242,10 @@
             <div class="info-icon">📍</div>
             <div>
                 <h4>Office Address</h4>
-                <p>Yelagiri Hills, Vellore District, Tamil Nadu</p>
+                <p>
+156/5A3 Thiruvalluvar Nagar Village,
+Ponneri post, Jolarpet Town
+Thirupattur Dt, Tamil Nadu - 635851</p>
             </div>
         </div>
 
@@ -250,7 +253,7 @@
             <div class="info-icon">📞</div>
             <div>
                 <h4>Phone & Email</h4>
-                <p>+91 98765 43210<br>info@yelagiriproperties.com</p>
+                <p>+91 8925833003<br>contact@yelagiriproperties.com</p>
             </div>
         </div>
     </div>
@@ -259,7 +262,7 @@
     <div class="map-wrapper">
         <div class="map card">
             <iframe width="100%" height="100%" style="border:0"
-                src="https://www.google.com/maps?q=Yelagiri+Hills&output=embed" loading="lazy"></iframe>
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2315.272233712495!2d78.59119766578334!3d12.594886087050012!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3badab5999c65743%3A0xbe330ad019949d5f!2sNsuresafe%20Automation%20Technologies!5e0!3m2!1sen!2sin!4v1768885125231!5m2!1sen!2sin"></iframe>
         </div>
     </div>
 

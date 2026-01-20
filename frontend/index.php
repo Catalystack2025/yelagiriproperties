@@ -65,6 +65,12 @@ include __DIR__ . '/../admin/includes/db.php';
     .hero-slide.active {
         opacity: 1;
     }
+
+    .view-all-wrap {
+  text-align: center;
+  margin-top: 40px;
+}
+
   </style>
 
 </head>
@@ -166,6 +172,20 @@ if ($resProps) {
 shuffle($properties);
 $featured = array_slice($properties, 0, 6);
 ?>
+<!-- BLOGS SECTION -->
+<?php
+require_once __DIR__ . '/../admin/includes/db.php';
+
+$sql = "
+  SELECT slug, title, excerpt, image, published_date
+  FROM blogs
+  WHERE status = 1
+  ORDER BY published_date DESC
+  LIMIT 3
+";
+$result = $conn->query($sql);
+?>
+
 
 <section class="featured-properties-section">
     <div class="featured-container">
@@ -252,20 +272,55 @@ $featured = array_slice($properties, 0, 6);
     </div>
 
   </div>
-</section>
-
-<!-- BLOG SECTION -->
+        </br>
+</section><!-- BLOG SECTION -->
 <div class="container">
   <section id="blogListSection">
     <div class="section-title">
       <h1>Latest Blogs</h1>
       <p>Expert insights, guides, and updates.</p>
     </div>
+<br>
+    <div class="blog-grid">
+      <?php if ($result && $result->num_rows > 0): ?>
+        <?php while ($blog = $result->fetch_assoc()): ?>
 
-    <div class="blog-grid" id="blogGrid"></div>
+          <div class="blog-card"
+               onclick="window.location.href='blog-detail.php?slug=<?= htmlspecialchars($blog['slug']) ?>'">
+
+            <div class="blog-image">
+              <img src="../admin/<?= htmlspecialchars($blog['image']) ?>"
+                   alt="<?= htmlspecialchars($blog['title']) ?>"
+                   loading="lazy">
+            </div>
+
+            <div class="blog-body">
+              <span class="blog-date">
+                <?= date('d M Y', strtotime($blog['published_date'])) ?>
+              </span>
+
+              <h3><?= htmlspecialchars($blog['title']) ?></h3>
+              <p><?= htmlspecialchars($blog['excerpt']) ?></p>
+
+              <span class="blog-link">Read More →</span>
+            </div>
+
+          </div>
+
+        <?php endwhile; ?>
+      <?php else: ?>
+        <p>No blogs available.</p>
+      <?php endif; ?>
+    </div>
+
+    <div class="view-all-wrap">
+      <a href="blog.php" class="view-all-btn">View All Blogs</a>
+    </div>
+
   </section>
 </div>
 <br>
+
 <!-- CTA FORM -->
 <section class="section-padding cta-section">
   <div class="container">
