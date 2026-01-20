@@ -16,11 +16,11 @@ $currentPage = basename($_SERVER['PHP_SELF']);
       <span class="nav-text">Dashboard</span>
     </a>
 
-    <a href="<?php echo $baseURL; ?>hero-banner.php"
+    <!-- <a href="<?php echo $baseURL; ?>hero-banner.php"
        class="nav-item <?php echo ($currentPage == 'hero-banner.php') ? 'active' : ''; ?>">
       <span class="nav-icon"><i class="fas fa-image"></i></span>
       <span class="nav-text">Hero Banner</span>
-    </a>
+    </a> -->
 
     <a href="<?php echo $baseURL; ?>properties/list.php"
        class="nav-item <?php echo (strpos($_SERVER['PHP_SELF'], '/properties/') !== false) ? 'active' : ''; ?>">
