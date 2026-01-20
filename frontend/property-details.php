@@ -220,7 +220,7 @@ if ($docRes) {
     <div class="stat-item">
         <span class="stat-icon"><i class="fa-solid fa-up-right-and-down-left-from-center"></i></span>
         <div>
-            <span class="stat-label">Dimensions</span>
+            <span class="stat-label">Dimensions (W*N*E*S)</span>
             <span class="stat-value"><?php echo htmlspecialchars($property['dimensions']); ?></span>
         </div>
     </div>
