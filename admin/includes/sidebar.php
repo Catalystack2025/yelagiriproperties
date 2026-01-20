@@ -43,14 +43,10 @@ $currentPage = basename($_SERVER['PHP_SELF']);
     <a href="<?php echo $baseURL; ?>my-account.php"
        class="nav-item <?php echo ($currentPage == 'my-account.php') ? 'active' : ''; ?>">
       <span class="nav-icon"><i class="fas fa-user-cog"></i></span>
-      <span class="nav-text">My Account</span>
+      <span class="nav-text">My Profile</span>
     </a>
 
-    <a href="<?php echo $baseURL; ?>settings.php"
-       class="nav-item <?php echo ($currentPage == 'settings.php') ? 'active' : ''; ?>">
-      <span class="nav-icon"><i class="fas fa-cog"></i></span>
-      <span class="nav-text">Settings</span>
-    </a>
+   
 
   </nav>
 </aside>

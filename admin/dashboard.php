@@ -133,17 +133,10 @@ $adminName = $_SESSION['admin_user']['name'];
 /* ===============================
    MODERN CLEAN DASHBOARD UI
 ================================ */
-:root {
-  --primary: #6366f1;
-  --bg-main: #f8fafc;
-  --border-color: #e2e8f0;
-  --text-dark: #1e293b;
-  --text-muted: #64748b;
-  --radius: 8px; /* Your requested radius */
-}
+
 
 .admin-main {
-  background: var(--bg-main);
+  background: var(--bg-surface);
   padding: 30px;
   font-family: 'Inter', system-ui, sans-serif;
   color: var(--text-dark);
