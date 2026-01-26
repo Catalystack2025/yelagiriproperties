@@ -21,8 +21,22 @@ if (isset($_GET['id']) && intval($_GET['id']) > 0) {
     $aRes = $conn->query("SELECT amenity_id FROM property_amenities WHERE property_id=$id");
     while ($r = $aRes->fetch_assoc()) { $selectedAmenities[] = $r['amenity_id']; }
 
-    $imgRes = $conn->query("SELECT image_path FROM property_images WHERE property_id=$id");
-    while ($r = $imgRes->fetch_assoc()) { $propertyImages[] = $r['image_path']; }
+    // Load Property Images (Normal + Common)
+    $imgRes = $conn->query("
+        SELECT image_path FROM property_images WHERE property_id=$id
+        
+        UNION ALL
+        
+        SELECT pci.image_path 
+        FROM property_common_image_map pcm
+        JOIN property_common_images pci 
+        ON pcm.common_image_id = pci.id
+        WHERE pcm.property_id=$id
+    ");
+
+    while ($r = $imgRes->fetch_assoc()) { 
+        $propertyImages[] = $r['image_path']; 
+    }
 
     $blueprint = getBlueprint($conn, $id);
 }
@@ -58,6 +72,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'])) {
         $stmt->execute();
         $id = $stmt->insert_id; 
         $stmt->close();
+
+        // Auto-attach ALL existing common images to new property
+        $commons = $conn->query("SELECT id FROM property_common_images");
+        while ($c = $commons->fetch_assoc()) {
+            $conn->query("
+                INSERT INTO property_common_image_map (property_id, common_image_id)
+                VALUES ($id, {$c['id']})
+            ");
+        }
     }
 
     // Amenities
@@ -71,9 +94,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'])) {
         $stmt->close();
     }
 
-    // Upload Handler (Images)
+    // Upload Handler (Property Images)
     $imgDir = __DIR__ . '/../uploads';
     if (!is_dir($imgDir)) mkdir($imgDir, 0777, true);
+
     if (!empty($_FILES['images']['name'][0])) {
         $stmt = $conn->prepare("INSERT INTO property_images (property_id, image_path) VALUES (?,?)");
         foreach ($_FILES['images']['name'] as $i => $file) {
@@ -89,9 +113,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'])) {
         $stmt->close();
     }
 
+
     // Document Handler
     $docDir = __DIR__ . '/../uploads/documents';
     if (!is_dir($docDir)) mkdir($docDir, 0777, true);
+
     if (!empty($_FILES['documents']['name'][0])) {
         $stmt = $conn->prepare("INSERT INTO property_documents (property_id, document_title, document_path) VALUES (?,?,?)");
         foreach ($_FILES['documents']['name'] as $i => $file) {
@@ -111,6 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'])) {
     // Blueprint Handler
     $bpDir = __DIR__ . '/../uploads/blueprints';
     if (!is_dir($bpDir)) mkdir($bpDir, 0777, true);
+
     $prev = getBlueprint($conn, $id);
     $bpOriginal = $prev['original_path'] ?? null;
     $bpAnnotated = $prev['annotated_path'] ?? null;
@@ -119,6 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'])) {
         $clean = time().'_'.preg_replace('/[^A-Za-z0-9.\-_]/','_',$_FILES['blueprint_image']['name']);
         if (move_uploaded_file($_FILES['blueprint_image']['tmp_name'], "$bpDir/$clean")) $bpOriginal = $clean;
     }
+
     if (!empty($blueprintData)) {
         $parts = explode(',', $blueprintData, 2);
         $decoded = base64_decode($parts[1] ?? '');
@@ -128,8 +156,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['name'])) {
             $bpAnnotated = $annot;
         }
     }
+
     if ($bpOriginal || $bpAnnotated) {
-        $stmt = $conn->prepare("INSERT INTO property_blueprints (property_id, original_path, annotated_path) VALUES (?,?,?) ON DUPLICATE KEY UPDATE original_path=VALUES(original_path), annotated_path=VALUES(annotated_path)");
+        $stmt = $conn->prepare("
+            INSERT INTO property_blueprints (property_id, original_path, annotated_path) 
+            VALUES (?,?,?) 
+            ON DUPLICATE KEY UPDATE 
+            original_path=VALUES(original_path), 
+            annotated_path=VALUES(annotated_path)
+        ");
         $stmt->bind_param("iss", $id, $bpOriginal, $bpAnnotated);
         $stmt->execute();
         $stmt->close();
@@ -149,6 +184,7 @@ include __DIR__ . '/../includes/sidebar.php';
 
 $isLocked = ($edit && !empty($blueprint['annotated_path']));
 ?>
+
 
 <style>
     /* Blueprint Toolbar Styling */

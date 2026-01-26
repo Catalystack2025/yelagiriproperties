@@ -73,6 +73,7 @@ include __DIR__ . '/includes/sidebar.php';
             <p>Click or drag images here (multiple allowed)</p>
           </div>
         </section>
+        
 
         <!-- DESCRIPTION -->
         <section class="form-card">

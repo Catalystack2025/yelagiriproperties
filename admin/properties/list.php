@@ -20,9 +20,14 @@ if ($result && $result->num_rows > 0) {
 
     <!-- PAGE HEADER -->
     <div class="page-header">
-      <h1>Properties</h1>
-      <a href="add.php" class="action-btn">Add Property</a>
-    </div>
+  <h1>Properties</h1>
+
+  <div class="page-actions">
+    <a href="add.php" class="action-btn">Add Property</a>
+    <a href="common-images.php" class="common-img-btn">Manage Common Images</a>
+  </div>
+</div>
+
 
     <!-- PROPERTIES TABLE -->
     <section class="dashboard-section">

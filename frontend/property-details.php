@@ -30,17 +30,37 @@ if (!$property) {
           </div>";
     exit;
 }
-
 $images = [];
-$imgRes = $conn->query("SELECT image_path FROM property_images WHERE property_id=$id ORDER BY id ASC");
-if ($imgRes) {
+
+// Load Property Images + Common Images Together
+$stmtImg = $conn->prepare("
+    SELECT image_path FROM property_images WHERE property_id = ?
+    
+    UNION ALL
+    
+    SELECT pci.image_path
+    FROM property_common_image_map pcm
+    JOIN property_common_images pci 
+    ON pcm.common_image_id = pci.id
+    WHERE pcm.property_id = ?
+    
+    ORDER BY image_path ASC
+");
+
+$stmtImg->bind_param("ii", $id, $id);
+$stmtImg->execute();
+$imgRes = $stmtImg->get_result();
+
+if ($imgRes && $imgRes->num_rows > 0) {
     while ($row = $imgRes->fetch_assoc()) {
         $images[] = "../admin/uploads/" . $row['image_path'];
     }
 }
+
 if (empty($images)) {
     $images[] = "./assets/images/no-image.jpg";
 }
+
 
 $amenities = [];
 $amenRes = $conn->query("
