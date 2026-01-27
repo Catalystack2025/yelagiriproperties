@@ -3,7 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 if (!isset($_SESSION['admin_user'])) {
-    header("Location: /yelagiriproperties/admin/login.php");
+    header("Location: /admin/login.php");
     exit;
 }
 ?>
@@ -18,7 +18,7 @@ if (!isset($_SESSION['admin_user'])) {
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- Admin CSS -->
-  <link rel="stylesheet" href="/yelagiriproperties/admin/assets/css/admin.css">
+  <link rel="stylesheet" href="admin/assets/css/admin.css">
 
 </head>
 <body>

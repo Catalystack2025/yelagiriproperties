@@ -2,10 +2,11 @@
 require_once __DIR__ . '/includes/auth-guard.php';
 require_once __DIR__ . '/includes/db.php';
 
-$userId = $_SESSION['admin_user']['id'];
+$userId = $_SESSION['admin_user']['id'] ?? 0;
 $message = '';
 $error = '';
 
+// Handle form submit
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $name = trim($_POST['name'] ?? '');
   $password = trim($_POST['password'] ?? '');
@@ -34,10 +35,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 }
 
+// Fetch user safely
+$user = [
+  'name' => 'Admin',
+  'username' => 'admin'
+];
+
 $userRes = $conn->prepare("SELECT * FROM admin_users WHERE id=? LIMIT 1");
 $userRes->bind_param("i", $userId);
 $userRes->execute();
-$user = $userRes->get_result()->fetch_assoc();
+$result = $userRes->get_result();
+
+if ($result && $result->num_rows > 0) {
+  $user = $result->fetch_assoc();
+}
 ?>
 
 <?php require_once __DIR__ . '/includes/header.php'; ?>
@@ -67,22 +78,22 @@ $user = $userRes->get_result()->fetch_assoc();
 
         <div class="avatar-box">
           <div class="avatar-circle">
-            <?= strtoupper(substr($user['name'], 0, 1)) ?>
+            <?= strtoupper(substr($user['name'] ?? 'A', 0, 1)) ?>
           </div>
           <div class="avatar-text">
-            <strong><?= htmlspecialchars($user['name']) ?></strong><br>
-            <small><?= htmlspecialchars($user['username']) ?></small>
+            <strong><?= htmlspecialchars($user['name'] ?? 'Admin') ?></strong><br>
+            <small><?= htmlspecialchars($user['username'] ?? 'admin') ?></small>
           </div>
         </div>
 
         <div class="form-group">
           <label>Full Name</label>
-          <input type="text" name="name" value="<?= htmlspecialchars($user['name']) ?>" required>
+          <input type="text" name="name" value="<?= htmlspecialchars($user['name'] ?? '') ?>" required>
         </div>
 
         <div class="form-group">
           <label>Username</label>
-          <input type="text" value="<?= htmlspecialchars($user['username']) ?>" disabled>
+          <input type="text" value="<?= htmlspecialchars($user['username'] ?? '') ?>" disabled>
         </div>
 
         <div class="form-group">
@@ -103,10 +114,6 @@ $user = $userRes->get_result()->fetch_assoc();
 <?php require_once __DIR__ . '/includes/footer.php'; ?>
 
 <style>
-/* ==========================
-   ACCOUNT PAGE UI
-========================== */
-
 .account-card {
   max-width: 520px;
 }
@@ -117,7 +124,6 @@ $user = $userRes->get_result()->fetch_assoc();
   gap: 18px;
 }
 
-/* Avatar */
 .avatar-box {
   display: flex;
   align-items: center;
@@ -142,7 +148,6 @@ $user = $userRes->get_result()->fetch_assoc();
   color: #6b7280;
 }
 
-/* Form */
 .form-group {
   display: flex;
   flex-direction: column;
@@ -161,7 +166,6 @@ $user = $userRes->get_result()->fetch_assoc();
   font-size: 14px;
 }
 
-/* Notices */
 .notice {
   padding: 12px;
   border-radius: 8px;
@@ -179,7 +183,6 @@ $user = $userRes->get_result()->fetch_assoc();
   color: #991b1b;
 }
 
-/* Button */
 .btn-primary {
   align-self: flex-start;
   background: #1e7c43;
@@ -192,7 +195,6 @@ $user = $userRes->get_result()->fetch_assoc();
   margin-top: 10px;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .account-card {
     max-width: 100%;
